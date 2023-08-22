@@ -1,14 +1,14 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '3.1.2'
-	id 'io.spring.dependency-management' version '1.1.2'
+	id 'org.springframework.boot' version "$springBootVersion"
+	id 'io.spring.dependency-management' version "$springDependencyManagementVersion"
 }
 
 group = 'com.cycnet'
 version = '0.0.1-SNAPSHOT'
 
 java {
-	sourceCompatibility = '17'
+	sourceCompatibility = "$javaVersion"
 }
 
 configurations {
@@ -26,10 +26,20 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.flywaydb:flyway-core'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
+
+	implementation "org.flywaydb:flyway-core:$flywayDbVersion"
+	runtimeOnly "org.postgresql:postgresql:$postgreSqlVersion"
+
+	compileOnly "org.projectlombok:lombok:$projectLombokVersion"
+	annotationProcessor "org.projectlombok:lombok:$projectLombokVersion"
+
+	implementation "org.mapstruct:mapstruct:$mapStructVersion"
+	implementation "org.mapstruct:mapstruct-processor:$mapStructVersion"
+
+	implementation "io.jsonwebtoken:jjwt-api:$jsonWebTokenVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-impl:$jsonWebTokenVersion"
+	runtimeOnly "io.jsonwebtoken:jjwt-jackson:$jsonWebTokenVersion"
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 }
