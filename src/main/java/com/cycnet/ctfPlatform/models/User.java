@@ -1,10 +1,17 @@
-package com.cycnet.ctfPlatform.model;
+package com.cycnet.ctfPlatform.models;
 
+import com.cycnet.ctfPlatform.enums.Role;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "User_")
 public class User {
 
@@ -19,8 +26,8 @@ public class User {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @ManyToOne
-    @JoinColumn(name = "role_id", nullable = false)
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
     private Role role;
 
 }
