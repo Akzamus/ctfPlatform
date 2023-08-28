@@ -1,4 +1,4 @@
-package com.cycnet.ctfPlatform.security.jwt;
+package com.cycnet.ctfPlatform.jwt;
 
 import com.cycnet.ctfPlatform.configurations.properties.JwtProperties;
 import io.jsonwebtoken.io.Decoders;
