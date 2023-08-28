@@ -44,4 +44,5 @@ public class Task {
     public Optional<Category> getCategory() {
         return Optional.ofNullable(category);
     }
+
 }
