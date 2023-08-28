@@ -7,4 +7,5 @@ public class JwtUtils {
     public static String extractJwtFromHeader(String authHeader) {
         return authHeader.substring(BEARER_PREFIX.length());
     }
+
 }
