@@ -13,7 +13,6 @@ import com.cycnet.ctfPlatform.jwt.JwtParser;
 import com.cycnet.ctfPlatform.jwt.JwtValidator;
 import com.cycnet.ctfPlatform.models.Student;
 import com.cycnet.ctfPlatform.models.User;
-import com.cycnet.ctfPlatform.repositories.StudentRepository;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
-    private final StudentRepository studentRepository;
     private final JwtFactory jwtFactory;
     private final JwtValidator jwtValidator;
     private final JwtParser jwtParser;
@@ -43,19 +41,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     );
                 });
 
+        Student student = Student.builder()
+                .firstName(request.firstName())
+                .lastName(request.lastName())
+                .build();
+
         User user = User.builder()
                 .email(request.email())
                 .password(passwordEncoder.encode(request.password()))
                 .role(Role.USER)
+                .student(student)
                 .build();
 
-        Student student = Student.builder()
-                .firstName(request.firstName())
-                .lastName(request.lastName())
-                .user(user)
-                .build();
-
-        studentRepository.save(student);
+        userRepository.save(user);
 
         String accessToken = jwtFactory.generateAccessToken(user);
         String refreshToken = jwtFactory.generateRefreshToken(user);

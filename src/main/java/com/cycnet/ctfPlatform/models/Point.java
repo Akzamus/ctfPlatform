@@ -19,14 +19,15 @@ public class Point {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "quantity")
     private int quantity;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "team_task_assignment_id", referencedColumnName = "id")
-    private TeamTaskAssignment temTaskAssignment;
+    private TeamTaskAssignment teamTaskAssignment;
 
     @Column(name = "issued_at")
     private ZonedDateTime issuedAt;

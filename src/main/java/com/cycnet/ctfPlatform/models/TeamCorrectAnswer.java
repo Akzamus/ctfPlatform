@@ -16,13 +16,14 @@ public class TeamCorrectAnswer {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "correct_answer")
     private String correctAnswer;
 
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "team_task_assignment_id", referencedColumnName = "id")
     private TeamTaskAssignment teamTaskAssignment;
 

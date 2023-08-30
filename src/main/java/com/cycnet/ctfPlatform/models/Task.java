@@ -6,7 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,28 +22,33 @@ public class Task {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "question", nullable = false)
+    @Column(name = "question")
     private String question;
 
-    @Column(name = "description", nullable = false)
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "number_of_points", nullable = false)
+    @Column(name = "number_of_points")
     private Integer numberOfPoints;
 
-    @Column(name = "file_path", nullable = false)
+    @Column(name = "file_path")
     private String filePath;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "event_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "event_id", referencedColumnName = "id")
     private Event event;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
 
-    public Optional<Category> getCategory() {
-        return Optional.ofNullable(category);
-    }
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private List<TeamTaskAssignment> teamTaskAssignments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "dependentTask", cascade = CascadeType.ALL)
+    private List<TaskDependence> incomingDependencies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL)
+    private List<TaskDependence> outgoingDependencies = new ArrayList<>();
 
 }

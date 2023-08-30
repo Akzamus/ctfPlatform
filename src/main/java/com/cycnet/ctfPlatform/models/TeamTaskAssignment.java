@@ -16,14 +16,21 @@ public class TeamTaskAssignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "team_registration_id", referencedColumnName ="id")
     private TeamRegistration teamRegistration;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "task_id",referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "task_id", referencedColumnName = "id")
     private Task task;
+
+    @OneToOne(mappedBy = "teamTaskAssignment", cascade = CascadeType.ALL)
+    private Point point;
+
+    @OneToOne(mappedBy = "teamTaskAssignment", cascade = CascadeType.ALL)
+    private TeamCorrectAnswer teamCorrectAnswer;
 
 }

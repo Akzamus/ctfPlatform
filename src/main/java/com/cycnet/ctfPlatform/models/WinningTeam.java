@@ -17,9 +17,10 @@ public class WinningTeam {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne
     @JoinColumn(name = "team_registration_id", referencedColumnName = "id")
     private TeamRegistration teamRegistration;
 

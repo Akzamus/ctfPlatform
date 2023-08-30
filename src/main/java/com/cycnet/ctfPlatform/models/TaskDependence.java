@@ -16,13 +16,15 @@ public class TaskDependence {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "dependent_task_id",referencedColumnName = "id")
+    @ManyToOne
+    @JoinColumn(name = "dependent_task_id", referencedColumnName = "id")
     private Task dependentTask;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "task_id",referencedColumnName = "id")
-    private Task task;
+    @ManyToOne
+    @JoinColumn(name = "parent_task_id", referencedColumnName = "id")
+    private Task parentTask;
+
 }
