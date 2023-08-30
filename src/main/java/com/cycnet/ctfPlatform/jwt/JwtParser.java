@@ -19,7 +19,7 @@ public class JwtParser {
         return extractClaim(token, Claims::getExpiration);
     }
 
-    public Optional<String> extractUsername(String token) {
+    public Optional<String> extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 

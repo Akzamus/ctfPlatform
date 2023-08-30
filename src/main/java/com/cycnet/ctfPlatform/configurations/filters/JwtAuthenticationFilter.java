@@ -1,8 +1,11 @@
 package com.cycnet.ctfPlatform.configurations.filters;
 
+import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
+import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
 import com.cycnet.ctfPlatform.jwt.JwtParser;
 import com.cycnet.ctfPlatform.jwt.JwtUtils;
 import com.cycnet.ctfPlatform.jwt.JwtValidator;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,7 +22,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -43,12 +45,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         String jwt = JwtUtils.extractJwtFromHeader(authHeader);
-        Optional<String> username = jwtParser.extractUsername(jwt);
 
-        if(username.isPresent() && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username.get());
+        UserDetails userDetails = jwtParser
+                .extractEmail(jwt)
+                .map(userDetailsService::loadUserByUsername)
+                .orElseThrow(() -> new JwtSubjectMissingException("JWT subject cannot be null"));
 
-            if (jwtValidator.isTokenValid(jwt, userDetails)) {
+        jwtValidator.ifTokenExpiredThrow(jwt, () -> new JwtTokenExpiredException("Token has expired"));
+
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
@@ -56,7 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 );
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
-            }
         }
 
         filterChain.doFilter(request, response);
