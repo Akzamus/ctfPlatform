@@ -1,11 +1,11 @@
 package com.cycnet.ctfPlatform.exceptions.auth;
 
-import io.jsonwebtoken.JwtException;
+import org.springframework.http.HttpStatus;
 
-public class JwtTokenExpiredException extends JwtException {
+public class JwtTokenExpiredException extends ApiAuthenticationException {
 
     public JwtTokenExpiredException(String message) {
-        super(message);
+        super(message, HttpStatus.UNAUTHORIZED);
     }
 
 }

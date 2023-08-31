@@ -1,11 +1,11 @@
 package com.cycnet.ctfPlatform.exceptions.auth;
 
-import io.jsonwebtoken.JwtException;
+import org.springframework.http.HttpStatus;
 
-public class JwtSubjectMissingException extends JwtException {
+public class JwtSubjectMissingException extends ApiAuthenticationException {
 
     public JwtSubjectMissingException(String message) {
-        super(message);
+        super(message, HttpStatus.BAD_REQUEST);
     }
 
 }
