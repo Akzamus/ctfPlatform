@@ -1,11 +1,10 @@
-package com.cycnet.ctfPlatform.configurations.filters;
+package com.cycnet.ctfPlatform.configurations.security.filters;
 
 import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
 import com.cycnet.ctfPlatform.jwt.JwtParser;
 import com.cycnet.ctfPlatform.jwt.JwtUtils;
 import com.cycnet.ctfPlatform.jwt.JwtValidator;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -54,13 +53,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwtValidator.ifTokenExpiredThrow(jwt, () -> new JwtTokenExpiredException("Token has expired"));
 
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-                        userDetails,
-                        null,
-                        userDetails.getAuthorities()
-                );
-                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                SecurityContextHolder.getContext().setAuthentication(authToken);
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities()
+            );
+            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authToken);
         }
 
         filterChain.doFilter(request, response);
