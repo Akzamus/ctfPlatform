@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,9 +32,9 @@ public class Event {
     private ZonedDateTime endedAt;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    private List<Task> tasks = new ArrayList<>();
+    private List<Task> tasks;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL)
-    private List<TeamRegistration> teamRegistrations = new ArrayList<>();
+    private List<TeamRegistration> teamRegistrations;
 
 }

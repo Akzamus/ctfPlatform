@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -31,10 +30,10 @@ public class TeamRegistration {
     private Event event;
 
     @OneToMany(mappedBy = "teamRegistration", cascade = CascadeType.ALL)
-    private List<TeamTaskAssignment> teamTaskAssignments = new ArrayList<>();
+    private List<TeamTaskAssignment> teamTaskAssignments;
 
     @OneToMany(mappedBy = "teamRegistration", cascade = CascadeType.ALL)
-    private List<TeamMember> teamMembers = new ArrayList<>();
+    private List<TeamMember> teamMembers;
 
     @OneToOne(mappedBy = "teamRegistration", cascade = CascadeType.ALL)
     private WinningTeam winningTeam;

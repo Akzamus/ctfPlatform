@@ -8,12 +8,12 @@ import java.time.ZonedDateTime;
 import java.util.Map;
 
 @Getter
-public class ApiValidationExceptionResponse extends ApiExceptionResponseBase {
+public class ApiValidationExceptionResponseDto extends ApiExceptionResponseDtoBase {
 
     private final Map<String, String> errorFields;
 
     @Builder
-    public ApiValidationExceptionResponse(
+    public ApiValidationExceptionResponseDto(
             int errorCode,
             HttpStatus httpStatus,
             ZonedDateTime timestamp,
@@ -22,4 +22,5 @@ public class ApiValidationExceptionResponse extends ApiExceptionResponseBase {
         super(errorCode, httpStatus, timestamp);
         this.errorFields = errorFields;
     }
+
 }

@@ -1,8 +1,8 @@
 package com.cycnet.ctfPlatform.services.implementations;
 
-import com.cycnet.ctfPlatform.dto.auth.AuthenticationRequest;
-import com.cycnet.ctfPlatform.dto.auth.AuthenticationResponse;
-import com.cycnet.ctfPlatform.dto.auth.RegisterRequest;
+import com.cycnet.ctfPlatform.dto.auth.AuthenticationRequestDto;
+import com.cycnet.ctfPlatform.dto.auth.AuthenticationResponseDto;
+import com.cycnet.ctfPlatform.dto.auth.RegisterRequestDto;
 import com.cycnet.ctfPlatform.enums.Role;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public AuthenticationResponse register(RegisterRequest request) {
+    public AuthenticationResponseDto register(RegisterRequestDto request) {
         userRepository.findByEmail(request.email())
                 .ifPresent(foundUser -> {
                     throw new UserAlreadyExistsException(
@@ -58,14 +58,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String accessToken = jwtFactory.generateAccessToken(user);
         String refreshToken = jwtFactory.generateRefreshToken(user);
 
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
     @Override
-    public AuthenticationResponse authenticate(AuthenticationRequest request) {
+    public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
@@ -81,14 +81,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         String accessToken = jwtFactory.generateAccessToken(user);
         String refreshToken = jwtFactory.generateRefreshToken(user);
 
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
     }
 
     @Override
-    public AuthenticationResponse refreshToken(String authHeader) {
+    public AuthenticationResponseDto refreshToken(String authHeader) {
         String refreshToken = authHeader.substring(7);
 
         User user = jwtParser.extractEmail(refreshToken)
@@ -100,7 +100,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         String accessToken = jwtFactory.generateAccessToken(user);
 
-        return AuthenticationResponse.builder()
+        return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();

@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,6 +32,6 @@ public class Student {
     private User user;
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL)
-    private List<TeamMember> teamMembers = new ArrayList<>();
+    private List<TeamMember> teamMembers;
 
 }

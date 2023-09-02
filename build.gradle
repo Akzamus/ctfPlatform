@@ -35,7 +35,7 @@ dependencies {
 	annotationProcessor "org.projectlombok:lombok:$projectLombokVersion"
 
 	implementation "org.mapstruct:mapstruct:$mapStructVersion"
-	implementation "org.mapstruct:mapstruct-processor:$mapStructVersion"
+	annotationProcessor "org.mapstruct:mapstruct-processor:$mapStructVersion"
 
 	implementation "io.jsonwebtoken:jjwt-api:$jsonWebTokenVersion"
 	runtimeOnly "io.jsonwebtoken:jjwt-impl:$jsonWebTokenVersion"

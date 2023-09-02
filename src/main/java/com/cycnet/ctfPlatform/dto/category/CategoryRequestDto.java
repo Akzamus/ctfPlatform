@@ -3,7 +3,7 @@ package com.cycnet.ctfPlatform.dto.category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
-public record CategoryRequest (
+public record CategoryRequestDto (
         @NotBlank(message = "Name cannot be blank")
         @Pattern(
                 regexp = "^[A-Z][a-z]+$",

@@ -1,6 +1,6 @@
 package com.cycnet.ctfPlatform.configurations.security;
 
-import com.cycnet.ctfPlatform.dto.apiException.ApiExceptionResponse;
+import com.cycnet.ctfPlatform.dto.apiException.ApiExceptionResponseDto;
 import com.cycnet.ctfPlatform.exceptions.ApiExceptionResponseFactory;
 import com.cycnet.ctfPlatform.exceptions.auth.ApiAuthenticationException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,7 +38,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setStatus(httpStatus.value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ApiExceptionResponse errorResponse = apiExceptionResponseFactory.createApiExceptionResponse(
+        ApiExceptionResponseDto errorResponse = apiExceptionResponseFactory.createApiExceptionResponseDto(
                 httpStatus,
                 authException.getMessage()
         );

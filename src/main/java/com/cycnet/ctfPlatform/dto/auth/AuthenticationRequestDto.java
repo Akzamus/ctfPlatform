@@ -2,7 +2,7 @@ package com.cycnet.ctfPlatform.dto.auth;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record AuthenticationRequest (
+public record AuthenticationRequestDto(
 
         @NotBlank(message = "Email cannot be blank")
         String email,

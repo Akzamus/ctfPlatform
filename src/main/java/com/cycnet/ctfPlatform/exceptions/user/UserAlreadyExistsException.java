@@ -1,12 +1,12 @@
 package com.cycnet.ctfPlatform.exceptions.user;
 
-import com.cycnet.ctfPlatform.exceptions.ApiRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-public class UserAlreadyExistsException extends ApiRequestException {
+public class UserAlreadyExistsException extends ResponseStatusException {
 
     public UserAlreadyExistsException(String message) {
-        super(message, HttpStatus.CONFLICT);
+        super(HttpStatus.CONFLICT, message);
     }
 
 }

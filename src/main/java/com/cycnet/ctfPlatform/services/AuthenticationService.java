@@ -1,13 +1,13 @@
 package com.cycnet.ctfPlatform.services;
 
-import com.cycnet.ctfPlatform.dto.auth.AuthenticationRequest;
-import com.cycnet.ctfPlatform.dto.auth.AuthenticationResponse;
-import com.cycnet.ctfPlatform.dto.auth.RegisterRequest;
+import com.cycnet.ctfPlatform.dto.auth.AuthenticationRequestDto;
+import com.cycnet.ctfPlatform.dto.auth.AuthenticationResponseDto;
+import com.cycnet.ctfPlatform.dto.auth.RegisterRequestDto;
 
 public interface AuthenticationService {
 
-    AuthenticationResponse register(RegisterRequest request);
-    AuthenticationResponse authenticate(AuthenticationRequest request);
-    AuthenticationResponse refreshToken(String authHeader);
+    AuthenticationResponseDto register(RegisterRequestDto request);
+    AuthenticationResponseDto authenticate(AuthenticationRequestDto request);
+    AuthenticationResponseDto refreshToken(String authHeader);
 
 }

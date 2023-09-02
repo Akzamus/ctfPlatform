@@ -9,7 +9,7 @@ import java.time.ZonedDateTime;
 
 @Getter
 @AllArgsConstructor
-public abstract class ApiExceptionResponseBase {
+public abstract class ApiExceptionResponseDtoBase {
 
     protected final int errorCode;
     protected final HttpStatus httpStatus;

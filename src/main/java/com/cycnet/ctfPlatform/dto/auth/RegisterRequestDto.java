@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public record RegisterRequest (
+public record RegisterRequestDto(
 
         @NotBlank(message = "First name cannot be blank")
         @Size(min = 2, max = 15, message = "First name must be between 2 and 15 characters")

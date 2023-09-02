@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -26,6 +25,6 @@ public class Category {
     private String name;
 
     @OneToMany(mappedBy = "category")
-    private List<Task> tasks = new ArrayList<>();
+    private List<Task> tasks;
 
 }

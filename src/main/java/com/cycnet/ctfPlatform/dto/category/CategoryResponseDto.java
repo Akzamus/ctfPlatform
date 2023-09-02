@@ -1,6 +1,6 @@
 package com.cycnet.ctfPlatform.dto.category;
 
-public record CategoryResponse (
+public record CategoryResponseDto(
     long id,
     String name
 ) { }

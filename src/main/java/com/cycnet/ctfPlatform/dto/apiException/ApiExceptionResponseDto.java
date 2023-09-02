@@ -7,12 +7,12 @@ import org.springframework.http.HttpStatus;
 import java.time.ZonedDateTime;
 
 @Getter
-public class ApiExceptionResponse extends ApiExceptionResponseBase {
+public class ApiExceptionResponseDto extends ApiExceptionResponseDtoBase {
 
     private final String errorMessage;
 
     @Builder
-    public ApiExceptionResponse(
+    public ApiExceptionResponseDto(
             int errorCode,
             HttpStatus httpStatus,
             ZonedDateTime timestamp,

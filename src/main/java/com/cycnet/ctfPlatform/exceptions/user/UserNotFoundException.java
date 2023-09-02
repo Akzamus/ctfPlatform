@@ -1,12 +1,12 @@
 package com.cycnet.ctfPlatform.exceptions.user;
 
-import com.cycnet.ctfPlatform.exceptions.ApiRequestException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-public class UserNotFoundException extends ApiRequestException {
+public class UserNotFoundException extends ResponseStatusException {
 
     public UserNotFoundException(String message) {
-        super(message, HttpStatus.NOT_FOUND);
+        super(HttpStatus.NOT_FOUND, message);
     }
 
 }

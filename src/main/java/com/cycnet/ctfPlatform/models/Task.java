@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -43,12 +42,12 @@ public class Task {
     private Category category;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
-    private List<TeamTaskAssignment> teamTaskAssignments = new ArrayList<>();
+    private List<TeamTaskAssignment> teamTaskAssignments;
 
     @OneToMany(mappedBy = "dependentTask", cascade = CascadeType.ALL)
-    private List<TaskDependence> incomingDependencies = new ArrayList<>();
+    private List<TaskDependence> incomingDependencies;
 
     @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL)
-    private List<TaskDependence> outgoingDependencies = new ArrayList<>();
+    private List<TaskDependence> outgoingDependencies;
 
 }
