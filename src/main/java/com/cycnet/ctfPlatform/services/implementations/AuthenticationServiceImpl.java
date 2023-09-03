@@ -20,9 +20,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
@@ -33,6 +35,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Override
+    @Transactional
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         userRepository.findByEmail(request.email())
                 .ifPresent(foundUser -> {
@@ -52,6 +55,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .role(Role.USER)
                 .student(student)
                 .build();
+
+        student.setUser(user);
 
         userRepository.save(user);
 
