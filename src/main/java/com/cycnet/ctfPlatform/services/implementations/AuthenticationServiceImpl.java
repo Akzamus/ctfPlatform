@@ -15,6 +15,7 @@ import com.cycnet.ctfPlatform.models.Student;
 import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.AuthenticationService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -33,6 +34,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     @Override
+    @Transactional
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         userRepository.findByEmail(request.email())
                 .ifPresent(foundUser -> {
@@ -52,6 +54,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .role(Role.USER)
                 .student(student)
                 .build();
+
+        student.setUser(user);
 
         userRepository.save(user);
 
