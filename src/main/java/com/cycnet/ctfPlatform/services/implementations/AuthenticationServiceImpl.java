@@ -15,7 +15,6 @@ import com.cycnet.ctfPlatform.models.Student;
 import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.AuthenticationService;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

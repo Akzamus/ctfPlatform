@@ -28,13 +28,17 @@ public class TeamController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TeamResponseDto> getTeamsByID(@PathVariable @Positive(message = "Id must be greater than zero") Long id){
+    public ResponseEntity<TeamResponseDto> getTeamsByID(
+            @PathVariable @Positive(message = "Id must be greater than zero") Long id
+    ){
         TeamResponseDto responseDto = teamService.getTeamById(id);
         return ResponseEntity.ok(responseDto);
     }
 
     @PostMapping
-    public ResponseEntity<TeamResponseDto> createTeam(@RequestBody @Valid TeamRequestDto requestDto){
+    public ResponseEntity<TeamResponseDto> createTeam(
+            @RequestBody @Valid TeamRequestDto requestDto
+    ){
         TeamResponseDto responseDto = teamService.creatTeam(requestDto);
         return ResponseEntity.ok(responseDto);
     }
@@ -49,7 +53,9 @@ public class TeamController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<TeamResponseDto> deleteTeam(@PathVariable @Positive(message = "Id must be greater than zero") Long id){
+    public ResponseEntity<TeamResponseDto> deleteTeam(
+            @PathVariable @Positive(message = "Id must be greater than zero") Long id
+    ){
        teamService.deleteTeam(id);
        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
