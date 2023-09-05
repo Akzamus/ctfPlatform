@@ -6,8 +6,8 @@ import com.cycnet.ctfPlatform.dto.auth.RegisterRequestDto;
 import com.cycnet.ctfPlatform.enums.Role;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
-import com.cycnet.ctfPlatform.exceptions.user.UserAlreadyExistsException;
-import com.cycnet.ctfPlatform.exceptions.user.UserNotFoundException;
+import com.cycnet.ctfPlatform.exceptions.entity.EntityAlreadyExistsException;
+import com.cycnet.ctfPlatform.exceptions.entity.EntityNotFoundException;
 import com.cycnet.ctfPlatform.jwt.JwtFactory;
 import com.cycnet.ctfPlatform.jwt.JwtParser;
 import com.cycnet.ctfPlatform.jwt.JwtValidator;
@@ -39,7 +39,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         userRepository.findByEmail(request.email())
                 .ifPresent(foundUser -> {
-                    throw new UserAlreadyExistsException(
+                    throw new EntityAlreadyExistsException(
                             "User with the email " + foundUser.getEmail() + " already exists."
                     );
                 });
@@ -80,7 +80,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new UserNotFoundException("User with this email was not found"));
+                .orElseThrow(() -> new EntityAlreadyExistsException("User with this email was not found"));
 
 
         String accessToken = jwtFactory.generateAccessToken(user);
@@ -99,7 +99,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         User user = jwtParser.extractEmail(refreshToken)
                 .map(userRepository::findByEmail)
                 .orElseThrow(() -> new JwtSubjectMissingException("JWT subject cannot be null"))
-                .orElseThrow(() -> new UserNotFoundException("User with this email was not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User with this email was not found"));
 
         jwtValidator.ifTokenExpiredThrow(refreshToken, () -> new JwtTokenExpiredException("Refresh token has expired"));
 

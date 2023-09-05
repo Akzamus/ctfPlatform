@@ -2,8 +2,8 @@ package com.cycnet.ctfPlatform.services.implementations;
 
 import com.cycnet.ctfPlatform.dto.category.CategoryRequestDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryResponseDto;
-import com.cycnet.ctfPlatform.exceptions.category.CategoryAlreadyExistsException;
-import com.cycnet.ctfPlatform.exceptions.category.CategoryNotFoundException;
+import com.cycnet.ctfPlatform.exceptions.entity.EntityAlreadyExistsException;
+import com.cycnet.ctfPlatform.exceptions.entity.EntityNotFoundException;
 import com.cycnet.ctfPlatform.mappers.CategoryMapper;
 import com.cycnet.ctfPlatform.models.Category;
 import com.cycnet.ctfPlatform.repositories.CategoryRepository;
@@ -32,7 +32,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto getCategoryById(long id) {
         return categoryRepository.findById(id)
                 .map(categoryMapper::toDto)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
     }
 
     @Override
@@ -40,7 +40,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto createCategory(CategoryRequestDto categoryRequestDto) {
         categoryRepository.findByName(categoryRequestDto.name())
                 .ifPresent(foundCategory -> {
-                    throw new CategoryAlreadyExistsException(
+                    throw new EntityAlreadyExistsException(
                             "Category with the name " + foundCategory.getName() + " already exists."
                     );
                 });
@@ -55,13 +55,13 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public CategoryResponseDto updateCategory(long id, CategoryRequestDto categoryRequestDto) {
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
 
         String categoryName = categoryRequestDto.name();
 
         categoryRepository.findByName(categoryName)
                 .ifPresent(foundCategory -> {
-                    throw new CategoryAlreadyExistsException(
+                    throw new EntityAlreadyExistsException(
                             "Category with the name " + foundCategory.getName() + " already exists."
                     );
                 });
@@ -76,7 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Transactional
     public void deleteCategory(long id) {
         Category existingCategory = categoryRepository.findById(id)
-                .orElseThrow(() -> new CategoryNotFoundException("Category with ID " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
 
         categoryRepository.delete(existingCategory);
     }
