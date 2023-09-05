@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
 
 import java.time.ZonedDateTime;
 
@@ -14,7 +16,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "point")
+@Table(name = "Point")
 public class Point {
 
     @Id
@@ -29,6 +31,7 @@ public class Point {
     @JoinColumn(name = "team_task_assignment_id", referencedColumnName = "id")
     private TeamTaskAssignment teamTaskAssignment;
 
+    @TimeZoneStorage(TimeZoneStorageType.DEFAULT)
     @Column(name = "issued_at")
     private ZonedDateTime issuedAt;
 

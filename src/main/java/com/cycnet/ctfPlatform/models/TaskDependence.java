@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "task_dependence")
+@Table(name = "TaskDependence")
 public class TaskDependence {
 
     @Id
