@@ -8,7 +8,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,41 +22,42 @@ public class TeamController {
     private final TeamService teamService;
 
     @GetMapping
-    public ResponseEntity<List<TeamResponseDto>> getAllTeams(){
-        return ResponseEntity.ok(teamService.getAllTeams());
+    @ResponseStatus(HttpStatus.OK)
+    public List<TeamResponseDto> getAllTeams(){
+        return teamService.getAllTeams();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TeamResponseDto> getTeamsByID(
+    @ResponseStatus(HttpStatus.OK)
+    public TeamResponseDto getTeamById(
             @PathVariable @Positive(message = "Id must be greater than zero") Long id
-    ){
-        TeamResponseDto responseDto = teamService.getTeamById(id);
-        return ResponseEntity.ok(responseDto);
+    ) {
+        return teamService.getTeamById(id);
     }
 
     @PostMapping
-    public ResponseEntity<TeamResponseDto> createTeam(
+    @ResponseStatus(HttpStatus.CREATED)
+    public TeamResponseDto createTeam(
             @RequestBody @Valid TeamRequestDto requestDto
-    ){
-        TeamResponseDto responseDto = teamService.creatTeam(requestDto);
-        return ResponseEntity.ok(responseDto);
+    ) {
+        return teamService.creatTeam(requestDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TeamResponseDto> updateCategory(
+    @ResponseStatus(HttpStatus.OK)
+    public TeamResponseDto updateTeam(
             @PathVariable @Positive(message = "Id must be positive") Long id,
             @RequestBody @Valid TeamRequestDto requestDto
     ) {
-        TeamResponseDto responseDto = teamService.updateTeam(id, requestDto);
-        return ResponseEntity.ok(responseDto);
+        return teamService.updateTeam(id, requestDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<TeamResponseDto> deleteTeam(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteTeam(
             @PathVariable @Positive(message = "Id must be greater than zero") Long id
-    ){
+    ) {
        teamService.deleteTeam(id);
-       return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }

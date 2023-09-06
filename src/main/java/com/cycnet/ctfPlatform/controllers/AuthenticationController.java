@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,29 +21,28 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthenticationResponseDto> register(
+    @ResponseStatus(HttpStatus.CREATED)
+    public AuthenticationResponseDto register(
             @RequestBody @Valid RegisterRequestDto request
     ) {
-        AuthenticationResponseDto responseDto = authenticationService.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        return authenticationService.register(request);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthenticationResponseDto> authenticate(
+    @ResponseStatus(HttpStatus.OK)
+    public AuthenticationResponseDto authenticate(
             @RequestBody @Valid AuthenticationRequestDto request)
     {
-        AuthenticationResponseDto responseDto = authenticationService.authenticate(request);
-        return ResponseEntity.ok(responseDto);
+        return authenticationService.authenticate(request);
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<AuthenticationResponseDto> refreshToken(
+    public AuthenticationResponseDto refreshToken(
             @RequestHeader(HttpHeaders.AUTHORIZATION)
             @Pattern(regexp = "Bearer .*", message = "Authorization header must start with 'Bearer '")
             String authHeader
     ) {
-        AuthenticationResponseDto responseDto = authenticationService.refreshToken(authHeader);
-        return ResponseEntity.ok(responseDto);
+        return authenticationService.refreshToken(authHeader);
     }
 
 }

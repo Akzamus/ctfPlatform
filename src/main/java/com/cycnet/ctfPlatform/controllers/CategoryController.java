@@ -7,7 +7,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,41 +22,42 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public ResponseEntity<List<CategoryResponseDto>> getAllCategories() {
-        return ResponseEntity.ok(categoryService.getAllCategories());
+    @ResponseStatus(HttpStatus.OK)
+    public List<CategoryResponseDto> getAllCategories() {
+        return categoryService.getAllCategories();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CategoryResponseDto> getCategoryById(
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryResponseDto getCategoryById(
             @PathVariable @Positive(message = "Id must be positive") Long id
     ) {
-        CategoryResponseDto responseDto = categoryService.getCategoryById(id);
-        return ResponseEntity.ok(responseDto);
+        return categoryService.getCategoryById(id);
     }
 
     @PostMapping
-    public ResponseEntity<CategoryResponseDto> createCategory(
+    @ResponseStatus(HttpStatus.CREATED)
+    public CategoryResponseDto createCategory(
             @RequestBody @Valid CategoryRequestDto categoryRequestDto
     ) {
-        CategoryResponseDto responseDto = categoryService.createCategory(categoryRequestDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+        return categoryService.createCategory(categoryRequestDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CategoryResponseDto> updateCategory(
+    @ResponseStatus(HttpStatus.OK)
+    public CategoryResponseDto updateCategory(
             @PathVariable @Positive(message = "Id must be positive") Long id,
             @RequestBody @Valid CategoryRequestDto categoryRequestDto
     ) {
-        CategoryResponseDto responseDto = categoryService.updateCategory(id, categoryRequestDto);
-        return ResponseEntity.ok(responseDto);
+        return categoryService.updateCategory(id, categoryRequestDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCategory(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCategory(
             @PathVariable @Positive(message = "Id must be positive") Long id
     ) {
         categoryService.deleteCategory(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
 }
