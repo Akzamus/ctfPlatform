@@ -1,12 +1,15 @@
 package com.cycnet.ctfPlatform.controllers;
 
 
+import com.cycnet.ctfPlatform.dto.PageResponseDto;
 import com.cycnet.ctfPlatform.dto.team.TeamRequestDto;
 import com.cycnet.ctfPlatform.dto.team.TeamResponseDto;
 import com.cycnet.ctfPlatform.services.TeamService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -23,14 +26,20 @@ public class TeamController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<TeamResponseDto> getAllTeams(){
-        return teamService.getAllTeams();
+    public PageResponseDto<TeamResponseDto> getAllTeams(
+            @RequestParam(defaultValue = "0")
+            @Min(value = 0, message = "Page number must be greater than or equal to 0") int page,
+
+            @RequestParam(defaultValue = "10")
+            @Range(min = 1, max = 100, message = "Page size must be between 1 and 100") int size
+    ){
+        return teamService.getAllTeams(page, size);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TeamResponseDto getTeamById(
-            @PathVariable @Positive(message = "Id must be greater than zero") Long id
+            @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
         return teamService.getTeamById(id);
     }
@@ -46,7 +55,7 @@ public class TeamController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public TeamResponseDto updateTeam(
-            @PathVariable @Positive(message = "Id must be positive") Long id,
+            @PathVariable @Positive(message = "Id must be positive") long id,
             @RequestBody @Valid TeamRequestDto requestDto
     ) {
         return teamService.updateTeam(id, requestDto);
@@ -55,7 +64,7 @@ public class TeamController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTeam(
-            @PathVariable @Positive(message = "Id must be greater than zero") Long id
+            @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
        teamService.deleteTeam(id);
     }

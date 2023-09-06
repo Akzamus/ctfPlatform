@@ -1,16 +1,17 @@
 package com.cycnet.ctfPlatform.controllers;
 
+import com.cycnet.ctfPlatform.dto.PageResponseDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryRequestDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryResponseDto;
 import com.cycnet.ctfPlatform.services.CategoryService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 
 @Validated
@@ -23,14 +24,20 @@ public class CategoryController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<CategoryResponseDto> getAllCategories() {
-        return categoryService.getAllCategories();
+    public PageResponseDto<CategoryResponseDto> getAllCategories(
+            @RequestParam(defaultValue = "0")
+            @Min(value = 0, message = "Page number must be greater than or equal to 0") int page,
+
+            @RequestParam(defaultValue = "10")
+            @Range(min = 1, max = 100, message = "Page size must be between 1 and 100") int size
+    ) {
+        return categoryService.getAllCategories(page, size);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryResponseDto getCategoryById(
-            @PathVariable @Positive(message = "Id must be positive") Long id
+            @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         return categoryService.getCategoryById(id);
     }
@@ -46,7 +53,7 @@ public class CategoryController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryResponseDto updateCategory(
-            @PathVariable @Positive(message = "Id must be positive") Long id,
+            @PathVariable @Positive(message = "Id must be positive") long id,
             @RequestBody @Valid CategoryRequestDto categoryRequestDto
     ) {
         return categoryService.updateCategory(id, categoryRequestDto);
@@ -55,7 +62,7 @@ public class CategoryController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCategory(
-            @PathVariable @Positive(message = "Id must be positive") Long id
+            @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         categoryService.deleteCategory(id);
     }

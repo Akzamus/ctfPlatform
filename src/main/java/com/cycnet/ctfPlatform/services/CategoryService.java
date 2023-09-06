@@ -1,13 +1,12 @@
 package com.cycnet.ctfPlatform.services;
 
+import com.cycnet.ctfPlatform.dto.PageResponseDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryRequestDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryResponseDto;
 
-import java.util.List;
-
 public interface CategoryService {
 
-    List<CategoryResponseDto> getAllCategories();
+    PageResponseDto<CategoryResponseDto> getAllCategories(int page, int size);
     CategoryResponseDto getCategoryById(long id);
     CategoryResponseDto createCategory(CategoryRequestDto categoryRequestDto);
     CategoryResponseDto updateCategory(long id, CategoryRequestDto categoryRequestDto);

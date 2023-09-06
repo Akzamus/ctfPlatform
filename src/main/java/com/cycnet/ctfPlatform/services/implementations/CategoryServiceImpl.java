@@ -1,5 +1,6 @@
 package com.cycnet.ctfPlatform.services.implementations;
 
+import com.cycnet.ctfPlatform.dto.PageResponseDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryRequestDto;
 import com.cycnet.ctfPlatform.dto.category.CategoryResponseDto;
 import com.cycnet.ctfPlatform.exceptions.entity.EntityAlreadyExistsException;
@@ -9,10 +10,10 @@ import com.cycnet.ctfPlatform.models.Category;
 import com.cycnet.ctfPlatform.repositories.CategoryRepository;
 import com.cycnet.ctfPlatform.services.CategoryService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +24,9 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public List<CategoryResponseDto> getAllCategories() {
-        List<Category> categories = categoryRepository.findAll();
-        return categoryMapper.toDto(categories);
+    public PageResponseDto<CategoryResponseDto> getAllCategories(int page, int size) {
+        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(page, size));
+        return categoryMapper.toDto(categoryPage);
     }
 
     @Override
