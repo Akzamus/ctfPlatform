@@ -24,13 +24,13 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryMapper categoryMapper;
 
     @Override
-    public PageResponseDto<CategoryResponseDto> getAllCategories(int page, int size) {
-        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(page, size));
+    public PageResponseDto<CategoryResponseDto> getAll(int pageNumber, int pageSize) {
+        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(pageNumber, pageSize));
         return categoryMapper.toDto(categoryPage);
     }
 
     @Override
-    public CategoryResponseDto getCategoryById(long id) {
+    public CategoryResponseDto getById(long id) {
         return categoryRepository.findById(id)
                 .map(categoryMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
@@ -38,7 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponseDto createCategory(CategoryRequestDto categoryRequestDto) {
+    public CategoryResponseDto create(CategoryRequestDto categoryRequestDto) {
         categoryRepository.findByName(categoryRequestDto.name())
                 .ifPresent(foundCategory -> {
                     throw new EntityAlreadyExistsException(
@@ -54,28 +54,29 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public CategoryResponseDto updateCategory(long id, CategoryRequestDto categoryRequestDto) {
+    public CategoryResponseDto update(long id, CategoryRequestDto categoryRequestDto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
 
-        String categoryName = categoryRequestDto.name();
+        String newName = categoryRequestDto.name();
 
-        categoryRepository.findByName(categoryName)
-                .ifPresent(foundCategory -> {
-                    throw new EntityAlreadyExistsException(
-                            "Category with the name " + foundCategory.getName() + " already exists."
-                    );
-                });
-
-        category.setName(categoryName);
-        category = categoryRepository.save(category);
+        if(!category.getName().equals(newName)) {
+            categoryRepository.findByName(newName)
+                    .ifPresent(foundCategory -> {
+                        throw new EntityAlreadyExistsException(
+                                "Category with the name " + foundCategory.getName() + " already exists."
+                        );
+                    });
+            category.setName(newName);
+            category = categoryRepository.save(category);
+        }
 
         return categoryMapper.toDto(category);
     }
 
     @Override
     @Transactional
-    public void deleteCategory(long id) {
+    public void delete(long id) {
         Category existingCategory = categoryRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
 

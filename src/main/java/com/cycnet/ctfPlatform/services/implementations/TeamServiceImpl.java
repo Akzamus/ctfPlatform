@@ -23,21 +23,21 @@ public class TeamServiceImpl implements TeamService {
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
     @Override
-    public PageResponseDto<TeamResponseDto> getAllTeams(int page, int size) {
-        Page<Team> teamPage = teamRepository.findAll(PageRequest.of(page, size));
+    public PageResponseDto<TeamResponseDto> getAll(int pageNumber, int pageSize) {
+        Page<Team> teamPage = teamRepository.findAll(PageRequest.of(pageNumber, pageSize));
         return teamMapper.toDto(teamPage);
     }
 
     @Override
-    public TeamResponseDto getTeamById(long id) {
+    public TeamResponseDto getById(long id) {
         return teamRepository.findById(id)
                 .map(teamMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID " +id + " does not exist"));
+                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
     }
 
     @Override
     @Transactional
-    public TeamResponseDto creatTeam(TeamRequestDto teamRequestDto) {
+    public TeamResponseDto create(TeamRequestDto teamRequestDto) {
         teamRepository.findByName(teamRequestDto.name())
                 .ifPresent(foundCategory -> {
                     throw new EntityAlreadyExistsException(
@@ -45,38 +45,40 @@ public class TeamServiceImpl implements TeamService {
                     );
                 });
 
-        Team team= teamMapper.toEntity(teamRequestDto);
+        Team team = teamMapper.toEntity(teamRequestDto);
         team = teamRepository.save(team);
 
         return teamMapper.toDto(team);
     }
 
     @Override
-    public TeamResponseDto updateTeam(long id, TeamRequestDto requestDto) {
+    public TeamResponseDto update(long id, TeamRequestDto requestDto) {
         Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID +" + id + " does not exist"));
+                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
 
-        String teamName = requestDto.name();
+        String newName = requestDto.name();
 
-        teamRepository.findByName(teamName)
-                .ifPresent(foundTeam -> {
-                    throw new EntityAlreadyExistsException(
-                            "Category with the name " + foundTeam.getName() + " already exists."
-                    );
-                });
+        if(!team.getName().equals(newName)) {
+            teamRepository.findByName(newName)
+                    .ifPresent(foundTeam -> {
+                        throw new EntityAlreadyExistsException(
+                                "Category with the name " + foundTeam.getName() + " already exists."
+                        );
+                    });
 
-        team.setName(teamName);
-        team = teamRepository.save(team);
+            team.setName(newName);
+            team = teamRepository.save(team);
+        }
 
         return teamMapper.toDto(team);
     }
 
     @Override
     @Transactional
-    public void deleteTeam(long id) {
-        Team alreadExistsTeam = teamRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID + " + id + " does not exist"));
+    public void delete(long id) {
+        Team existingTeam = teamRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
 
-         teamRepository.delete(alreadExistsTeam);
+         teamRepository.delete(existingTeam);
     }
 }

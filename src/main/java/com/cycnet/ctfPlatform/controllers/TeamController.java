@@ -14,8 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @Validated
 @RestController
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class TeamController {
             @RequestParam(defaultValue = "10")
             @Range(min = 1, max = 100, message = "Page size must be between 1 and 100") int size
     ){
-        return teamService.getAllTeams(page, size);
+        return teamService.getAll(page, size);
     }
 
     @GetMapping("/{id}")
@@ -41,7 +39,7 @@ public class TeamController {
     public TeamResponseDto getTeamById(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
-        return teamService.getTeamById(id);
+        return teamService.getById(id);
     }
 
     @PostMapping
@@ -49,7 +47,7 @@ public class TeamController {
     public TeamResponseDto createTeam(
             @RequestBody @Valid TeamRequestDto requestDto
     ) {
-        return teamService.creatTeam(requestDto);
+        return teamService.create(requestDto);
     }
 
     @PutMapping("/{id}")
@@ -58,7 +56,7 @@ public class TeamController {
             @PathVariable @Positive(message = "Id must be positive") long id,
             @RequestBody @Valid TeamRequestDto requestDto
     ) {
-        return teamService.updateTeam(id, requestDto);
+        return teamService.update(id, requestDto);
     }
 
     @DeleteMapping("/{id}")
@@ -66,7 +64,7 @@ public class TeamController {
     public void deleteTeam(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
-       teamService.deleteTeam(id);
+       teamService.delete(id);
     }
 
 }

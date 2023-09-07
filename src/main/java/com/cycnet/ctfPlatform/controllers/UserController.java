@@ -1,9 +1,9 @@
 package com.cycnet.ctfPlatform.controllers;
 
 import com.cycnet.ctfPlatform.dto.PageResponseDto;
-import com.cycnet.ctfPlatform.dto.category.CategoryRequestDto;
-import com.cycnet.ctfPlatform.dto.category.CategoryResponseDto;
-import com.cycnet.ctfPlatform.services.CategoryService;
+import com.cycnet.ctfPlatform.dto.user.UserRequestDto;
+import com.cycnet.ctfPlatform.dto.user.UserResponseDto;
+import com.cycnet.ctfPlatform.services.UserService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
@@ -13,58 +13,57 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/categories")
-public class CategoryController {
+@RequestMapping("/api/v1/users")
+public class UserController {
 
-    private final CategoryService categoryService;
+    private final UserService userService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<CategoryResponseDto> getAllCategories(
+    public PageResponseDto<UserResponseDto> getAllUsers(
             @RequestParam(defaultValue = "0")
             @Min(value = 0, message = "Page number must be greater than or equal to 0") int page,
 
             @RequestParam(defaultValue = "10")
             @Range(min = 1, max = 100, message = "Page size must be between 1 and 100") int size
     ) {
-        return categoryService.getAll(page, size);
+        return userService.getAll(page, size);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryResponseDto getCategoryById(
+    public UserResponseDto getUserById(
             @PathVariable @Positive(message = "Id must be positive") long id
     ) {
-        return categoryService.getById(id);
+        return userService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public CategoryResponseDto createCategory(
-            @RequestBody @Valid CategoryRequestDto categoryRequestDto
+    public UserResponseDto createUser(
+            @RequestBody @Valid UserRequestDto userRequestDto
     ) {
-        return categoryService.create(categoryRequestDto);
+        return userService.create(userRequestDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public CategoryResponseDto updateCategory(
+    public UserResponseDto updateUser(
             @PathVariable @Positive(message = "Id must be positive") long id,
-            @RequestBody @Valid CategoryRequestDto categoryRequestDto
+            @RequestBody @Valid UserRequestDto userRequestDto
     ) {
-        return categoryService.update(id, categoryRequestDto);
+        return userService.update(id, userRequestDto);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteCategory(
+    public void deleteUser(
             @PathVariable @Positive(message = "Id must be positive") long id
     ) {
-        categoryService.delete(id);
+        userService.delete(id);
     }
 
 }
