@@ -5,7 +5,7 @@ import lombok.Builder;
 
 @Builder
 public record StudentResponseDto(
-        Long id,
+        long id,
         String firstName,
         String lastName,
         UserResponseDto user

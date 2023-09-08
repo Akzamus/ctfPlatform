@@ -25,5 +25,5 @@ public record StudentRequestDto (
 
         @NotBlank(message = "User id cannot be blank")
         @Positive(message = "User id must be positive")
-        Long userId
+        long userId
 ) { }

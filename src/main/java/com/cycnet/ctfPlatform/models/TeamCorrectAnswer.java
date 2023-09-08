@@ -22,7 +22,6 @@ public class TeamCorrectAnswer {
     @Column(name = "correct_answer")
     private String correctAnswer;
 
-
     @OneToOne
     @JoinColumn(name = "team_task_assignment_id", referencedColumnName = "id")
     private TeamTaskAssignment teamTaskAssignment;
