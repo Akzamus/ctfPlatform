@@ -2,13 +2,11 @@ package com.cycnet.ctfPlatform.validators;
 
 import com.cycnet.ctfPlatform.customAnnotations.ValidEventRequest;
 import com.cycnet.ctfPlatform.dto.event.EventRequestDto;
-import io.micrometer.common.util.StringUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeParseException;
+import java.util.Objects;
 
 public class EventRequestDtoValidator implements ConstraintValidator<ValidEventRequest, EventRequestDto> {
 
@@ -18,60 +16,25 @@ public class EventRequestDtoValidator implements ConstraintValidator<ValidEventR
             return true;
         }
 
-        boolean isValid = true;
+        ZonedDateTime startedAt = eventRequestDto.startedAt();
+        ZonedDateTime endedAt = eventRequestDto.endedAt();
 
-        ZonedDateTime startedAt = null;
-        ZonedDateTime endedAt = null;
-
-        if (StringUtils.isBlank(eventRequestDto.endedAt())) {
-            handleInvalidDate(context, "EndedAt cannot be blank", "endedAt");
-            isValid = false;
+        if (Objects.isNull(startedAt) || Objects.isNull(endedAt)) {
+           return false;
         }
 
-        if (StringUtils.isBlank(eventRequestDto.startedAt())) {
-            handleInvalidDate(context, "StartedAt cannot be blank", "startedAt");
-            isValid = false;
-        }
-
-        if(isValid) {
-            try {
-                startedAt = ZonedDateTime.parse(eventRequestDto.startedAt());
-            } catch (DateTimeParseException e) {
-                handleInvalidDate(context, "Invalid date format, use ISO-8601", "startedAt");
-                isValid = false;
-            }
-
-            try {
-                endedAt = ZonedDateTime.parse(eventRequestDto.endedAt());
-            } catch (DateTimeParseException e) {
-                handleInvalidDate(context, "Invalid date format, use ISO-8601", "endedAt");
-                isValid = false;
-            }
-        }
-
-
-        if (isValid && !startedAt.getZone().equals(endedAt.getZone())) {
+        if (!startedAt.getZone().equals(endedAt.getZone())) {
             handleInvalidDate(context, "StartedAt and endedAt must have the same time zone", "startedAt");
             handleInvalidDate(context, "StartedAt and endedAt must have the same time zone", "endedAt");
-            isValid = false;
+            return false;
         }
 
-        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.of("Z"));
-
-        if (isValid && (startedAt.isAfter(endedAt) || startedAt.isBefore(currentDateTime) || endedAt.isBefore(currentDateTime))) {
-            if (startedAt.isAfter(endedAt)) {
-                handleInvalidDate(context, "StartedAt must be before endedAt", "startedAt");
-            }
-            if (startedAt.isBefore(currentDateTime)) {
-                handleInvalidDate(context, "StartedAt must be in the future", "startedAt");
-            }
-            if (endedAt.isBefore(currentDateTime)) {
-                handleInvalidDate(context, "EndedAt must be in the future", "endedAt");
-            }
-            isValid = false;
+        if (endedAt.isBefore(startedAt) || endedAt.isEqual(startedAt)) {
+            handleInvalidDate(context, "StartedAt must be before endedAt", "startedAt");
+            return false;
         }
 
-        return isValid;
+        return true;
     }
 
     private void handleInvalidDate(ConstraintValidatorContext context, String message, String propertyName) {

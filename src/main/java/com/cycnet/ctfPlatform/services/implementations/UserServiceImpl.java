@@ -11,12 +11,14 @@ import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,20 +30,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponseDto<UserResponseDto> getAll(int pageNumber, int pageSize) {
+        log.info("Retrieving users, page number: {}, page size: {}", pageNumber, pageSize);
+
         Page<User> userPage = userRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        return userMapper.toDto(userPage);
+        PageResponseDto<UserResponseDto> userPageResponseDto = userMapper.toDto(userPage);
+
+        log.info("Finished retrieving users, page number: {}, page size: {}", pageNumber, pageSize);
+
+        return userPageResponseDto;
     }
 
     @Override
     public UserResponseDto getById(long id) {
-        return userRepository.findById(id)
+        log.info("Retrieving user by ID: {}", id);
+
+        UserResponseDto userResponseDto = userRepository.findById(id)
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
+
+        log.info("Finished retrieving user by ID: {}", id);
+
+        return userResponseDto;
     }
 
     @Override
     @Transactional
     public UserResponseDto create(UserRequestDto userRequestDto) {
+        log.info("Creating a new user with email: {}", userRequestDto.email());
+
         userRepository.findByEmail(userRequestDto.email())
                 .ifPresent(foundUser-> {
                     throw new EntityAlreadyExistsException(
@@ -54,12 +70,16 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(password));
         user = userRepository.save(user);
 
+        log.info("Created a new user with ID: {}", user.getId());
+
         return userMapper.toDto(user);
     }
 
     @Override
     @Transactional
     public UserResponseDto update(long id, UserRequestDto requestDto) {
+        log.info("Updating user with ID: {}", id);
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
 
@@ -78,9 +98,9 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.valueOf(requestDto.role()));
         String password = requestDto.password();
         user.setPassword(passwordEncoder.encode(password));
-
         user = userRepository.save(user);
 
+        log.info("Updated user with ID: {}", id);
 
         return userMapper.toDto(user);
     }
@@ -88,10 +108,14 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void delete(long id) {
+        log.info("Deleting user with ID: {}", id);
+
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
 
         userRepository.delete(existingUser);
+
+        log.info("Deleted user with ID: {}", id);
     }
 
 }

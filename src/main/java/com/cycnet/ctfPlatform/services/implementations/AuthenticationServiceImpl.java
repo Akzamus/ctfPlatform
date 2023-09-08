@@ -16,12 +16,14 @@ import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -37,6 +39,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Override
     @Transactional
     public AuthenticationResponseDto register(RegisterRequestDto request) {
+        log.info("Received registration request for email: {}", request.email());
+
         userRepository.findByEmail(request.email())
                 .ifPresent(foundUser -> {
                     throw new EntityAlreadyExistsException(
@@ -57,11 +61,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
 
         student.setUser(user);
-
         userRepository.save(user);
+
+        log.info("User saved to the database with email: {}", user.getEmail());
 
         String accessToken = jwtFactory.generateAccessToken(user);
         String refreshToken = jwtFactory.generateRefreshToken(user);
+
+        log.info("User registered successfully with email: {}", user.getEmail());
 
         return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)
@@ -71,6 +78,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponseDto authenticate(AuthenticationRequestDto request) {
+        log.info("Received authentication request for email: {}", request.email());
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.email(),
@@ -80,11 +89,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
 
         User user = userRepository.findByEmail(request.email())
-                .orElseThrow(() -> new EntityAlreadyExistsException("User with this email was not found"));
-
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "User with email " + request.email() + " not found"
+                ));
 
         String accessToken = jwtFactory.generateAccessToken(user);
         String refreshToken = jwtFactory.generateRefreshToken(user);
+
+        log.info("User authenticated successfully with email: {}", user.getEmail());
 
         return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)
@@ -94,6 +106,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponseDto refreshToken(String authHeader) {
+        log.info("Received refresh token request");
+
         String refreshToken = authHeader.substring(7);
 
         User user = jwtParser.extractEmail(refreshToken)
@@ -104,6 +118,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         jwtValidator.ifTokenExpiredThrow(refreshToken, () -> new JwtTokenExpiredException("Refresh token has expired"));
 
         String accessToken = jwtFactory.generateAccessToken(user);
+
+        log.info("User refreshed token successfully with email: {}", user.getEmail());
 
         return AuthenticationResponseDto.builder()
                 .accessToken(accessToken)

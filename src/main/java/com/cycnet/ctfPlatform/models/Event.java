@@ -11,11 +11,11 @@ import org.hibernate.annotations.TimeZoneStorageType;
 import java.time.ZonedDateTime;
 import java.util.List;
 
-@Entity
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
 @Table(name = "Event")
 public class Event {
 

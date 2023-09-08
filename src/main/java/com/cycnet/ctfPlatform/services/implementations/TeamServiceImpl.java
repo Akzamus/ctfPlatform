@@ -10,11 +10,13 @@ import com.cycnet.ctfPlatform.models.Team;
 import com.cycnet.ctfPlatform.repositories.TeamRepository;
 import com.cycnet.ctfPlatform.services.TeamService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -24,20 +26,34 @@ public class TeamServiceImpl implements TeamService {
     private final TeamMapper teamMapper;
     @Override
     public PageResponseDto<TeamResponseDto> getAll(int pageNumber, int pageSize) {
+        log.info("Retrieving teams, page number: {}, page size: {}", pageNumber, pageSize);
+
         Page<Team> teamPage = teamRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        return teamMapper.toDto(teamPage);
+        PageResponseDto<TeamResponseDto> teamPageResponseDto = teamMapper.toDto(teamPage);
+
+        log.info("Finished retrieving teams, page number: {}, page size: {}", pageNumber, pageSize);
+
+        return teamPageResponseDto;
     }
 
     @Override
     public TeamResponseDto getById(long id) {
-        return teamRepository.findById(id)
+        log.info("Retrieving team by ID: {}", id);
+
+        TeamResponseDto teamResponseDto = teamRepository.findById(id)
                 .map(teamMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
+
+        log.info("Finished retrieving team by ID: {}", id);
+
+        return teamResponseDto;
     }
 
     @Override
     @Transactional
     public TeamResponseDto create(TeamRequestDto teamRequestDto) {
+        log.info("Creating a new team with name: {}", teamRequestDto.name());
+
         teamRepository.findByName(teamRequestDto.name())
                 .ifPresent(foundCategory -> {
                     throw new EntityAlreadyExistsException(
@@ -48,11 +64,15 @@ public class TeamServiceImpl implements TeamService {
         Team team = teamMapper.toEntity(teamRequestDto);
         team = teamRepository.save(team);
 
+        log.info("Created a new team with ID: {}", team.getId());
+
         return teamMapper.toDto(team);
     }
 
     @Override
     public TeamResponseDto update(long id, TeamRequestDto requestDto) {
+        log.info("Updating team with ID: {}", id);
+
         Team team = teamRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
 
@@ -70,15 +90,22 @@ public class TeamServiceImpl implements TeamService {
             team = teamRepository.save(team);
         }
 
+        log.info("Updated team with ID: {}", id);
+
         return teamMapper.toDto(team);
     }
 
     @Override
     @Transactional
     public void delete(long id) {
+        log.info("Deleting team with ID: {}", id);
+
         Team existingTeam = teamRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
 
-         teamRepository.delete(existingTeam);
+        teamRepository.delete(existingTeam);
+
+        log.info("Deleted team with ID: {}", id);
     }
+
 }
