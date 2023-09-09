@@ -1,10 +1,9 @@
 package com.cycnet.ctfPlatform.controllers;
 
-
 import com.cycnet.ctfPlatform.dto.PageResponseDto;
-import com.cycnet.ctfPlatform.dto.team.TeamRequestDto;
-import com.cycnet.ctfPlatform.dto.team.TeamResponseDto;
-import com.cycnet.ctfPlatform.services.TeamService;
+import com.cycnet.ctfPlatform.dto.event.EventRequestDto;
+import com.cycnet.ctfPlatform.dto.event.EventResponseDto;
+import com.cycnet.ctfPlatform.services.EventService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Positive;
@@ -17,46 +16,46 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/teams")
-public class TeamController {
+@RequestMapping("/api/v1/events")
+public class EventController {
 
-    private final TeamService teamService;
+    private final EventService eventService;
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<TeamResponseDto> getAllTeams(
+    public PageResponseDto<EventResponseDto> getAllEvents(
             @RequestParam(defaultValue = "0")
             @Min(value = 0, message = "Page number must be greater than or equal to 0") int page,
 
             @RequestParam(defaultValue = "10")
             @Range(min = 1, max = 100, message = "Page size must be between 1 and 100") int size
     ){
-        return teamService.getAll(page, size);
+        return eventService.getAll(page, size);
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TeamResponseDto getTeamById(
+    public EventResponseDto getEventById(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
-        return teamService.getById(id);
+        return eventService.getById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TeamResponseDto createTeam(
-            @RequestBody @Valid TeamRequestDto teamRequestDto
+    public EventResponseDto createTeam(
+            @RequestBody @Valid EventRequestDto eventRequestDto
     ) {
-        return teamService.create(teamRequestDto);
+        return eventService.create(eventRequestDto);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TeamResponseDto updateTeam(
+    public EventResponseDto updateTeam(
             @PathVariable @Positive(message = "Id must be positive") long id,
-            @RequestBody @Valid TeamRequestDto teamRequestDto
+            @RequestBody @Valid EventRequestDto eventRequestDto
     ) {
-        return teamService.update(id, teamRequestDto);
+        return eventService.update(id, eventRequestDto);
     }
 
     @DeleteMapping("/{id}")
@@ -64,7 +63,7 @@ public class TeamController {
     public void deleteTeam(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
-       teamService.delete(id);
+        eventService.delete(id);
     }
 
 }

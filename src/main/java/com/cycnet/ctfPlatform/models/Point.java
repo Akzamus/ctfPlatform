@@ -16,7 +16,7 @@ import java.time.ZonedDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Point")
+@Table(name = "point")
 public class Point {
 
     @Id

@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name ="TeamRegistration")
+@Table(name ="team_registration")
 public class TeamRegistration {
 
     @Id

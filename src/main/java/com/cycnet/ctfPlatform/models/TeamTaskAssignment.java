@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "TeamTaskAssignment")
+@Table(name = "team_task_assignment")
 public class TeamTaskAssignment {
 
     @Id

@@ -55,19 +55,15 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto create(CategoryRequestDto categoryRequestDto) {
         log.info("Creating a new category with name: {}", categoryRequestDto.name());
 
-        categoryRepository.findByName(categoryRequestDto.name())
-                .ifPresent(foundCategory -> {
-                    throw new EntityAlreadyExistsException(
-                            "Category with the name " + foundCategory.getName() + " already exists."
-                    );
-                });
+        throwExceptionIfCategoryExists(categoryRequestDto.name());
 
         Category category = categoryMapper.toEntity(categoryRequestDto);
         category = categoryRepository.save(category);
+        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
 
-        log.info("Created a new category with ID: {}", category.getId());
+        log.info("Created a new category with name: {}", category.getName());
 
-        return categoryMapper.toDto(category);
+        return categoryResponseDto;
     }
 
     @Override
@@ -80,20 +76,17 @@ public class CategoryServiceImpl implements CategoryService {
 
         String newName = categoryRequestDto.name();
 
-        if(!category.getName().equals(newName)) {
-            categoryRepository.findByName(newName)
-                    .ifPresent(foundCategory -> {
-                        throw new EntityAlreadyExistsException(
-                                "Category with the name " + foundCategory.getName() + " already exists."
-                        );
-                    });
+        if (!category.getName().equals(newName)) {
+            throwExceptionIfCategoryExists(newName);
             category.setName(newName);
             category = categoryRepository.save(category);
         }
 
+        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
+
         log.info("Updated category with ID: {}", id);
 
-        return categoryMapper.toDto(category);
+        return categoryResponseDto;
     }
 
     @Override
@@ -107,6 +100,15 @@ public class CategoryServiceImpl implements CategoryService {
         categoryRepository.delete(existingCategory);
 
         log.info("Deleted category with ID: {}", id);
+    }
+
+    private void throwExceptionIfCategoryExists(String categoryName) {
+        categoryRepository.findByName(categoryName)
+                .ifPresent(foundCategory -> {
+                    throw new EntityAlreadyExistsException(
+                            "Category with the name " + foundCategory.getName() + " already exists."
+                    );
+                });
     }
 
 }

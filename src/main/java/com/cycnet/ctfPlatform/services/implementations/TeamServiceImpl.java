@@ -24,6 +24,7 @@ public class TeamServiceImpl implements TeamService {
 
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
+
     @Override
     public PageResponseDto<TeamResponseDto> getAll(int pageNumber, int pageSize) {
         log.info("Retrieving teams, page number: {}, page size: {}", pageNumber, pageSize);
@@ -54,19 +55,15 @@ public class TeamServiceImpl implements TeamService {
     public TeamResponseDto create(TeamRequestDto teamRequestDto) {
         log.info("Creating a new team with name: {}", teamRequestDto.name());
 
-        teamRepository.findByName(teamRequestDto.name())
-                .ifPresent(foundCategory -> {
-                    throw new EntityAlreadyExistsException(
-                            "Team with the name " + foundCategory.getName() + " already exists."
-                    );
-                });
+        throwExceptionIfTeamExists(teamRequestDto.name());
 
         Team team = teamMapper.toEntity(teamRequestDto);
         team = teamRepository.save(team);
+        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
 
-        log.info("Created a new team with ID: {}", team.getId());
+        log.info("Created a new team with name: {}", team.getName());
 
-        return teamMapper.toDto(team);
+        return teamResponseDto;
     }
 
     @Override
@@ -78,21 +75,17 @@ public class TeamServiceImpl implements TeamService {
 
         String newName = requestDto.name();
 
-        if(!team.getName().equals(newName)) {
-            teamRepository.findByName(newName)
-                    .ifPresent(foundTeam -> {
-                        throw new EntityAlreadyExistsException(
-                                "Category with the name " + foundTeam.getName() + " already exists."
-                        );
-                    });
-
+        if (!team.getName().equals(newName)) {
+            throwExceptionIfTeamExists(newName);
             team.setName(newName);
             team = teamRepository.save(team);
         }
 
+        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
+
         log.info("Updated team with ID: {}", id);
 
-        return teamMapper.toDto(team);
+        return teamResponseDto;
     }
 
     @Override
@@ -106,6 +99,15 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.delete(existingTeam);
 
         log.info("Deleted team with ID: {}", id);
+    }
+
+    private void throwExceptionIfTeamExists(String name) {
+        teamRepository.findByName(name)
+                .ifPresent(foundTeam -> {
+                    throw new EntityAlreadyExistsException(
+                            "Team with the name " + foundTeam.getName() + " already exists."
+                    );
+                });
     }
 
 }

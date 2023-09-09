@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Event")
+@Table(name = "event")
 public class Event {
 
     @Id

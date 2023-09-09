@@ -58,21 +58,17 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto create(UserRequestDto userRequestDto) {
         log.info("Creating a new user with email: {}", userRequestDto.email());
 
-        userRepository.findByEmail(userRequestDto.email())
-                .ifPresent(foundUser-> {
-                    throw new EntityAlreadyExistsException(
-                            "User with the email " + foundUser.getEmail() + " already exists."
-                    );
-                });
+        throwExceptionIfUserExists(userRequestDto.email());
 
         User user = userMapper.toEntity(userRequestDto);
         String password = userRequestDto.password();
         user.setPassword(passwordEncoder.encode(password));
         user = userRepository.save(user);
+        UserResponseDto userResponseDto = userMapper.toDto(user);
 
-        log.info("Created a new user with ID: {}", user.getId());
+        log.info("Created a new user with email: {}", user.getEmail());
 
-        return userMapper.toDto(user);
+        return userResponseDto;
     }
 
     @Override
@@ -85,13 +81,8 @@ public class UserServiceImpl implements UserService {
 
         String newEmail = requestDto.email();
 
-        if(!user.getEmail().equals(newEmail)) {
-            userRepository.findByEmail(newEmail)
-                    .ifPresent(foundUser -> {
-                        throw new EntityAlreadyExistsException(
-                                "User with the email " + foundUser.getEmail() + " already exists."
-                        );
-                    });
+        if (!user.getEmail().equals(newEmail)) {
+            throwExceptionIfUserExists(newEmail);
             user.setEmail(newEmail);
         }
 
@@ -99,10 +90,11 @@ public class UserServiceImpl implements UserService {
         String password = requestDto.password();
         user.setPassword(passwordEncoder.encode(password));
         user = userRepository.save(user);
+        UserResponseDto userResponseDto = userMapper.toDto(user);
 
         log.info("Updated user with ID: {}", id);
 
-        return userMapper.toDto(user);
+        return userResponseDto;
     }
 
     @Override
@@ -116,6 +108,15 @@ public class UserServiceImpl implements UserService {
         userRepository.delete(existingUser);
 
         log.info("Deleted user with ID: {}", id);
+    }
+
+    private void throwExceptionIfUserExists(String email) {
+        userRepository.findByEmail(email)
+                .ifPresent(foundUser -> {
+                    throw new EntityAlreadyExistsException(
+                            "User with the email " + foundUser.getEmail() + " already exists."
+                    );
+                });
     }
 
 }

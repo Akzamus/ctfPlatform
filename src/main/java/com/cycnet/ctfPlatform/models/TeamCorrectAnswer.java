@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "TeamCorrectAnswer")
+@Table(name = "team_correct_answer")
 public class TeamCorrectAnswer {
 
     @Id
