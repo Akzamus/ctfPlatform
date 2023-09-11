@@ -21,6 +21,9 @@ public class Task {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @Column(name = "question")
     private String question;
 

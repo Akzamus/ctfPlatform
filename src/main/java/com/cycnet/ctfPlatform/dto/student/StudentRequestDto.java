@@ -1,9 +1,6 @@
 package com.cycnet.ctfPlatform.dto.student;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
 public record StudentRequestDto (
 
@@ -23,7 +20,7 @@ public record StudentRequestDto (
         )
         String lastName,
 
-        @NotBlank(message = "User id cannot be blank")
+        @NotNull(message = "User id cannot be null")
         @Positive(message = "User id must be positive")
         long userId
 ) { }

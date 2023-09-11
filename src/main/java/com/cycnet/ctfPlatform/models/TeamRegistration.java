@@ -1,5 +1,6 @@
 package com.cycnet.ctfPlatform.models;
 
+import com.cycnet.ctfPlatform.enums.TeamResult;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,10 @@ public class TeamRegistration {
     @Column(name = "id")
     private Long id;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "team_result")
+    private TeamResult teamResult;
+
     @ManyToOne
     @JoinColumn(name = "team_id", referencedColumnName = "id")
     private Team team;
@@ -34,8 +39,5 @@ public class TeamRegistration {
 
     @OneToMany(mappedBy = "teamRegistration", cascade = CascadeType.ALL)
     private List<TeamMember> teamMembers;
-
-    @OneToOne(mappedBy = "teamRegistration", cascade = CascadeType.ALL)
-    private WinningTeam winningTeam;
 
 }

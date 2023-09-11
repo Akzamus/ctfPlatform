@@ -5,6 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.TimeZoneStorage;
+import org.hibernate.annotations.TimeZoneStorageType;
+
+import java.time.ZonedDateTime;
 
 @Data
 @Builder
@@ -19,6 +23,13 @@ public class TeamTaskAssignment {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "correct_answer")
+    private String correctAnswer;
+
+    @TimeZoneStorage(TimeZoneStorageType.DEFAULT)
+    @Column(name = "completed_at")
+    private ZonedDateTime completedAt;
+
     @ManyToOne
     @JoinColumn(name = "team_registration_id", referencedColumnName ="id")
     private TeamRegistration teamRegistration;
@@ -26,11 +37,5 @@ public class TeamTaskAssignment {
     @ManyToOne
     @JoinColumn(name = "task_id", referencedColumnName = "id")
     private Task task;
-
-    @OneToOne(mappedBy = "teamTaskAssignment", cascade = CascadeType.ALL)
-    private Point point;
-
-    @OneToOne(mappedBy = "teamTaskAssignment", cascade = CascadeType.ALL)
-    private TeamCorrectAnswer teamCorrectAnswer;
 
 }
