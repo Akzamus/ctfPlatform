@@ -2,19 +2,17 @@ package com.cycnet.ctfPlatform.models;
 
 import com.cycnet.ctfPlatform.enums.TeamResult;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
 @Data
 @Builder
+@ToString(exclude = {"teamTaskAssignments", "teamMembers", "winningTeam"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name ="team_registration")
+@Table(name = "team_registration")
 public class TeamRegistration {
 
     @Id
