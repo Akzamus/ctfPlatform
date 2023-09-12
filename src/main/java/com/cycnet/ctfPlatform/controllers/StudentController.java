@@ -35,7 +35,7 @@ public class StudentController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public StudentResponseDto getStudentById(
-            @PathVariable @Positive(message = "ID must be positive") Long id
+            @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         return studentService.getById(id);
     }
@@ -51,7 +51,7 @@ public class StudentController {
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public StudentResponseDto updateStudent(
-            @PathVariable @Positive(message = "ID must be positive") Long id,
+            @PathVariable @Positive(message = "Id must be positive") long id,
             @RequestBody @Valid StudentRequestDto studentRequestDto
     ) {
         return studentService.update(id, studentRequestDto);
@@ -60,7 +60,7 @@ public class StudentController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteStudent(
-            @PathVariable @Positive(message = "ID must be positive") Long id
+            @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         studentService.delete(id);
     }
