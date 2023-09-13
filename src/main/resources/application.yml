@@ -18,6 +18,13 @@ spring:
 springdoc:
   swagger-ui:
     operations-sorter: method
+  override-with-generic-response: true
+
+minio:
+  bucket-name: tasks
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
 
 application:
   security:

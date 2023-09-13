@@ -30,6 +30,8 @@ dependencies {
 
 	implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$springDocOpenApiVersion"
 
+	implementation "io.minio:minio:$minioVersion"
+
 	implementation "org.flywaydb:flyway-core:$flywayDbVersion"
 	runtimeOnly "org.postgresql:postgresql:$postgreSqlVersion"
 

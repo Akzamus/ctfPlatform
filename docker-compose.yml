@@ -12,13 +12,22 @@ services:
       - ctf-postgres-volume:/data/postgres
     ports:
       - "5433:5432"
-    networks:
-      - ctf-postgres-network
     restart: always
 
-networks:
-  ctf-postgres-network:
-    driver: bridge
+  minio:
+    container_name: ctf-minio-container
+    image: minio/minio:latest
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - ctf-minio-volume:/minio
+    ports:
+      - "9090:9090"
+      - "9000:9000"
+    restart: always
+    command: server ~/minio --console-address :9090
 
 volumes:
   ctf-postgres-volume:
+  ctf-minio-volume:

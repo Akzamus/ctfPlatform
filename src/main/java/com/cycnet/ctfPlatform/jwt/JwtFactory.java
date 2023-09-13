@@ -26,7 +26,7 @@ public class JwtFactory {
         return buildToken(
                 extraClaims,
                 userDetails,
-                jwtProperties.getAccessTokenExpiration()
+                jwtProperties.accessTokenExpiration()
         );
     }
 
@@ -34,7 +34,7 @@ public class JwtFactory {
         return buildToken(
                 Collections.emptyMap(),
                 userDetails,
-                jwtProperties.getRefreshTokenExpiration()
+                jwtProperties.refreshTokenExpiration()
         );
     }
 

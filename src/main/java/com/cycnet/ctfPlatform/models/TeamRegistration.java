@@ -8,7 +8,7 @@ import java.util.List;
 
 @Data
 @Builder
-@ToString(exclude = {"teamTaskAssignments", "teamMembers", "winningTeam"})
+@ToString(exclude = {"teamTaskAssignments", "teamMembers"})
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity

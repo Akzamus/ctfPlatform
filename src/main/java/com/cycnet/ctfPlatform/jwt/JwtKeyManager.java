@@ -15,7 +15,7 @@ public class JwtKeyManager {
     private final JwtProperties jwtProperties;
 
     public Key getSignInKey() {
-        String secretKey = jwtProperties.getSecretKey();
+        String secretKey = jwtProperties.secretKey();
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
