@@ -110,7 +110,7 @@ public class GlobalExceptionHandler {
     }
 
     @PostConstruct
-    public void initializeExceptionMap() {
+    private void initializeExceptionMap() {
         errorMessages.put(DateTimeParseException.class, "Invalid date format, use ISO-8601");
     }
 }

@@ -61,7 +61,9 @@ public class StudentServiceImpl implements StudentService {
         log.info("Creating a new student for user with ID: {}", requestDto.userId());
 
         User user = userRepository.findById(requestDto.userId())
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + requestDto.userId() + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "User with ID " + requestDto.userId() + " does not exist."
+                ));
 
         Student student = user.getStudent();
 
@@ -78,6 +80,8 @@ public class StudentServiceImpl implements StudentService {
                 .build();
 
         user.setStudent(student);
+
+        log.info("Student is linked to user with id: {}", user.getId());
 
         student = studentRepository.save(student);
         StudentResponseDto studentResponseDto = studentMapper.toDto(student);
@@ -97,12 +101,14 @@ public class StudentServiceImpl implements StudentService {
 
         log.info("Found existing student with ID: {} ", existingStudent.getId());
 
-        if (existingStudent.getUser().getId() != requestDto.userId()) {
+        long newUserId = requestDto.userId();
 
-            log.info("User ID has changed from {} to {}. Updating user...", existingStudent.getUser().getId(), requestDto.userId());
+        if (existingStudent.getUser().getId() != newUserId) {
 
-            User user = userRepository.findById(requestDto.userId())
-                    .orElseThrow(() -> new EntityNotFoundException("User with ID " + requestDto.userId() + " does not exist."));
+            User user = userRepository.findById(newUserId)
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "User with ID " + newUserId + " does not exist."
+                    ));
 
             Student student = user.getStudent();
 
@@ -111,10 +117,16 @@ public class StudentServiceImpl implements StudentService {
                         "User already linked to student with ID : " + student.getId()
                 );
             }
-            log.info("Found appropriate user with ID: {}", user.getId());
 
             existingStudent.setUser(user);
             user.setStudent(existingStudent);
+
+            log.info(
+                    "User ID has changed from {} to {}. Updating student...",
+                    existingStudent.getUser().getId(),
+                    user.getId()
+            );
+
         }
 
         existingStudent.setFirstName(requestDto.firstName());

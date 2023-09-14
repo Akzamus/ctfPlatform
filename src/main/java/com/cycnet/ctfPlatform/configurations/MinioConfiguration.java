@@ -1,4 +1,4 @@
-package com.cycnet.ctfPlatform.configurations.security;
+package com.cycnet.ctfPlatform.configurations;
 
 import com.cycnet.ctfPlatform.configurations.properties.MinioProperties;
 import io.minio.MinioClient;
@@ -22,4 +22,5 @@ public class MinioConfiguration {
                 )
                 .build();
     }
+
 }

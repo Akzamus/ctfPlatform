@@ -1,4 +1,4 @@
-package com.cycnet.ctfPlatform.configurations.security;
+package com.cycnet.ctfPlatform.configurations;
 
 import com.cycnet.ctfPlatform.configurations.security.filters.ExceptionHandlerFilter;
 import com.cycnet.ctfPlatform.configurations.security.filters.JwtAuthenticationFilter;
