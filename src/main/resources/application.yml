@@ -5,6 +5,11 @@ spring:
     password: postgres
     driver-class-name: org.postgresql.Driver
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
+
   flyway:
     enabled: true
     locations: classpath:db/migration

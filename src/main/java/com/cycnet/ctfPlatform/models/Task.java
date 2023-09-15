@@ -33,9 +33,6 @@ public class Task {
     @Column(name = "number_of_points")
     private Integer numberOfPoints;
 
-    @Column(name = "file_path")
-    private String filePath;
-
     @ManyToOne
     @JoinColumn(name = "event_id", referencedColumnName = "id")
     private Event event;
@@ -43,6 +40,9 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     private Category category;
+
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private List<File> files;
 
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private List<TeamTaskAssignment> teamTaskAssignments;

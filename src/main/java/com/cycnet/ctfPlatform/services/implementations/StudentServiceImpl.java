@@ -36,10 +36,11 @@ public class StudentServiceImpl implements StudentService {
         log.info("Retrieving students, page number: {}, page size : {}", pageNumber, pageSize);
 
         Page<Student> studentPage = studentRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<StudentResponseDto> studentPageResponseDto = studentMapper.toDto(studentPage);
 
         log.info("Finished retrieving students, page number: {}, page size : {}", pageNumber, pageSize);
 
-        return studentMapper.toDto(studentPage);
+        return studentPageResponseDto;
     }
 
     @Override

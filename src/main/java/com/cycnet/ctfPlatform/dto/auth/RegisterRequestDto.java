@@ -30,4 +30,5 @@ public record RegisterRequestDto(
         @NotBlank(message = "Password cannot be blank")
         @Size(min = 6, message = "Password must be at least 6 characters")
         String password
+
 ) { }

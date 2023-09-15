@@ -9,4 +9,5 @@ public record AuthenticationRequestDto(
 
         @NotBlank(message = "Password cannot be blank")
         String password
+
 ) { }

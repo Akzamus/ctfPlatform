@@ -15,4 +15,5 @@ public record UserRequestDto (
         @NotBlank(message = "Role cannot be blank")
         @Pattern(regexp = "^(USER|ADMIN)$", message = "Role can be USER or ADMIN")
         String role
+
 ) { }
