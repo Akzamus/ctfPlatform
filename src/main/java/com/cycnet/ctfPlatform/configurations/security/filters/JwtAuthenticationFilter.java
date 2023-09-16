@@ -3,7 +3,7 @@ package com.cycnet.ctfPlatform.configurations.security.filters;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
 import com.cycnet.ctfPlatform.jwt.JwtParser;
-import com.cycnet.ctfPlatform.jwt.JwtUtils;
+import com.cycnet.ctfPlatform.utils.JwtUtils;
 import com.cycnet.ctfPlatform.jwt.JwtValidator;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

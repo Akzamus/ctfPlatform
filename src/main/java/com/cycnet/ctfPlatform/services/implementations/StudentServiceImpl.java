@@ -74,12 +74,9 @@ public class StudentServiceImpl implements StudentService {
             );
         }
 
-        student = Student.builder()
-                .firstName(requestDto.firstName())
-                .lastName(requestDto.lastName())
-                .user(user)
-                .build();
+        student = studentMapper.toEntity(requestDto);
 
+        student.setUser(user);
         user.setStudent(student);
 
         log.info("Student is linked to user with id: {}", user.getId());
@@ -132,6 +129,7 @@ public class StudentServiceImpl implements StudentService {
 
         existingStudent.setFirstName(requestDto.firstName());
         existingStudent.setLastName(requestDto.lastName());
+
         existingStudent = studentRepository.save(existingStudent);
         StudentResponseDto studentResponseDto = studentMapper.toDto(existingStudent);
 

@@ -84,7 +84,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
 
-        log.info("Updated category with ID: {}", id);
+        log.info("Updated category with ID: {}", category.getId());
 
         return categoryResponseDto;
     }

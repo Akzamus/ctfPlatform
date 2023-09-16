@@ -83,6 +83,7 @@ public class EventServiceImpl implements EventService {
 
         event.setStartedAt(requestDto.startedAt());
         event.setEndedAt(requestDto.endedAt());
+
         event = eventRepository.save(event);
         EventResponseDto eventResponseDto = eventMapper.toDto(event);
 

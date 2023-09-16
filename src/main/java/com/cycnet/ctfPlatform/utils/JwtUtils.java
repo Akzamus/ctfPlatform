@@ -1,4 +1,4 @@
-package com.cycnet.ctfPlatform.jwt;
+package com.cycnet.ctfPlatform.utils;
 
 public class JwtUtils {
 

@@ -89,6 +89,7 @@ public class UserServiceImpl implements UserService {
         user.setRole(Role.valueOf(requestDto.role()));
         String password = requestDto.password();
         user.setPassword(passwordEncoder.encode(password));
+
         user = userRepository.save(user);
         UserResponseDto userResponseDto = userMapper.toDto(user);
 
