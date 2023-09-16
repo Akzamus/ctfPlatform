@@ -35,21 +35,21 @@ public class MinioService implements StorageService {
     }
 
     @Override
-    public String uploadFile(String fileName, InputStream inputStream) {
+    public String uploadFile(String path, InputStream inputStream) {
         try {
-            fileName = FileUtils.addTimestampToFileName(fileName, zoneId);
+            path = FileUtils.addTimestampToFileName(path, zoneId);
 
-            log.info("Uploading file with file name: {}", fileName);
+            log.info("Uploading file with file name: {}", path);
 
             ObjectWriteResponse objectWriteResponse = minioClient.putObject(
                     PutObjectArgs.builder()
                             .stream(inputStream, inputStream.available(), -1)
                             .bucket(minioProperties.bucketName())
-                            .object(fileName)
+                            .object(path)
                             .build()
             );
 
-            log.info("Uploaded file: {}", fileName);
+            log.info("Uploaded file: {}", path);
 
             return objectWriteResponse.object();
         } catch (RuntimeException e) {
@@ -60,20 +60,20 @@ public class MinioService implements StorageService {
     }
 
     @Override
-    public byte[] getFile(String fileName) {
+    public byte[] getFile(String path) {
         try {
-            throwExceptionIfFileDoesNotExists(fileName);
+            throwExceptionIfFileDoesNotExists(path);
 
-            log.info("Downloading file with file name: {}", fileName);
+            log.info("Downloading file with file name: {}", path);
 
             GetObjectResponse getObjectResponse = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(minioProperties.bucketName())
-                            .object(fileName)
+                            .object(path)
                             .build()
             );
 
-            log.info("Downloaded file: {}", fileName);
+            log.info("Downloaded file: {}", path);
 
             return getObjectResponse.readAllBytes();
         } catch (RuntimeException e) {
@@ -84,30 +84,30 @@ public class MinioService implements StorageService {
     }
 
     @Override
-    public String renameFile(String oldFileName, String newFileName) {
+    public String renameFile(String oldPath, String newPath) {
         try {
-            throwExceptionIfFileDoesNotExists(oldFileName);
+            throwExceptionIfFileDoesNotExists(oldPath);
 
-            newFileName = FileUtils.addTimestampToFileName(newFileName, zoneId);
+            newPath = FileUtils.addTimestampToFileName(newPath, zoneId);
 
-            log.info("Renaming file from {} to {}", oldFileName, newFileName);
+            log.info("Renaming file from {} to {}", oldPath, newPath);
 
             ObjectWriteResponse objectWriteResponse = minioClient.copyObject(
                     CopyObjectArgs.builder()
                             .bucket(minioProperties.bucketName())
-                            .object(oldFileName)
+                            .object(oldPath)
                             .source(
                                     CopySource.builder()
                                             .bucket(minioProperties.bucketName())
-                                            .object(newFileName)
+                                            .object(newPath)
                                             .build()
                             )
                             .build()
             );
 
-            deleteFile(oldFileName);
+            deleteFile(oldPath);
 
-            log.info("File renamed from {} to {}", oldFileName, newFileName);
+            log.info("File renamed from {} to {}", oldPath, newPath);
 
             return objectWriteResponse.object();
         } catch (RuntimeException e) {
@@ -118,20 +118,20 @@ public class MinioService implements StorageService {
     }
 
     @Override
-    public void deleteFile(String fileName) {
+    public void deleteFile(String path) {
         try {
-            throwExceptionIfFileDoesNotExists(fileName);
+            throwExceptionIfFileDoesNotExists(path);
 
-            log.info("Deleting file with file name: {}", fileName);
+            log.info("Deleting file with file name: {}", path);
 
             minioClient.removeObject(
                     RemoveObjectArgs.builder()
                             .bucket(minioProperties.bucketName())
-                            .object(fileName)
+                            .object(path)
                             .build()
             );
 
-            log.info("Deleted file: {}", fileName);
+            log.info("Deleted file: {}", path);
         } catch (RuntimeException e) {
             throw e;
         } catch (Exception e) {

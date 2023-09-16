@@ -19,8 +19,8 @@ public class File {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "path")
+    private String path;
 
     @ManyToOne
     @JoinColumn(name = "task_id", referencedColumnName = "id")

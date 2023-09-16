@@ -7,9 +7,9 @@ import java.io.InputStream;
 public interface StorageService {
 
     String uploadFile(MultipartFile multipartFile);
-    String uploadFile(String fileName, InputStream inputStream);
-    byte[] getFile(String fileName);
-    String renameFile(String oldFileName, String newFileName);
-    void deleteFile(String fileName);
+    String uploadFile(String path, InputStream inputStream);
+    byte[] getFile(String path);
+    String renameFile(String oldPath, String newPath);
+    void deleteFile(String path);
 
 }

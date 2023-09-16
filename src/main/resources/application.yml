@@ -26,7 +26,7 @@ springdoc:
   override-with-generic-response: true
 
 minio:
-  bucket-name: tasks
+  bucket-name: ctf
   endpoint: http://localhost:9000
   access-key: minioadmin
   secret-key: minioadmin
