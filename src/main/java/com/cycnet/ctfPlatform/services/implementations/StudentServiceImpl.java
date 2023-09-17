@@ -51,7 +51,7 @@ public class StudentServiceImpl implements StudentService {
                 .map(studentMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Student with ID " + id + " doest not exists"));
 
-        log.info("Finished retrieving student by ID: {}", id);
+        log.info("Finished retrieving student by ID: {}", studentResponseDto.id());
 
         return studentResponseDto;
     }

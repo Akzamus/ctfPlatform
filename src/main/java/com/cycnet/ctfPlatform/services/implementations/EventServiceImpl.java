@@ -45,7 +45,7 @@ public class EventServiceImpl implements EventService {
                 .map(eventMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " does not exist."));
 
-        log.info("Finished retrieving event by ID: {}", id);
+        log.info("Finished retrieving event by ID: {}", eventResponseDto.id());
 
         return eventResponseDto;
     }

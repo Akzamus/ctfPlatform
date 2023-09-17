@@ -19,14 +19,14 @@ public record TaskRequestDto (
 
         @NotNull(message = "Number of points cannot be null")
         @Positive(message = "Number of points must be positive")
-        int numberOfPoints,
+        Integer numberOfPoints,
 
         @NotNull(message = "Event id cannot be null")
         @Positive(message = "Event id must be positive")
-        long eventId,
+        Long eventId,
 
         @NotNull(message = "Category id cannot be null")
         @Positive(message = "Category id must be positive")
-        long categoryId
+        Long categoryId
 
 ) { }

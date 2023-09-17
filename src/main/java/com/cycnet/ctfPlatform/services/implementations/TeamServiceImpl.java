@@ -45,7 +45,7 @@ public class TeamServiceImpl implements TeamService {
                 .map(teamMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
 
-        log.info("Finished retrieving team by ID: {}", id);
+        log.info("Finished retrieving team by ID: {}", teamResponseDto.id());
 
         return teamResponseDto;
     }

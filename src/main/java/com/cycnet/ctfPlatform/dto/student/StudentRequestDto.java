@@ -22,6 +22,6 @@ public record StudentRequestDto (
 
         @NotNull(message = "User id cannot be null")
         @Positive(message = "User id must be positive")
-        long userId
+        Long userId
 
 ) { }

@@ -8,7 +8,7 @@ public record TaskResponseDto (
         String name,
         String question,
         String description,
-        Integer numberOfPoints,
+        int numberOfPoints,
         EventResponseDto event,
         CategoryResponseDto category
 ) { }

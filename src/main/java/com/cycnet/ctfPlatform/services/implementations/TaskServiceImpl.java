@@ -51,7 +51,7 @@ public class TaskServiceImpl implements TaskService {
                 .map(taskMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Task with ID " + id + " does not exist"));
 
-        log.info("Finished retrieving team by ID: {}", id);
+        log.info("Finished retrieving team by ID: {}", taskResponseDto.id());
 
         return taskResponseDto;
     }
@@ -96,7 +96,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() ->  new EntityNotFoundException("Task with id " + id + " does not exist."));
 
-        if (task.getEvent().getId() != requestDto.eventId()) {
+        if (!task.getEvent().getId().equals(requestDto.eventId())) {
             Event event = eventRepository.findById(requestDto.eventId())
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Event with ID " + requestDto.eventId() + " doest not exists")
@@ -109,7 +109,7 @@ public class TaskServiceImpl implements TaskService {
             log.info("Event with ID {} has been set for task with ID: {}", event.getId(), task.getId());
         }
 
-        if (task.getCategory().getId() != requestDto.categoryId()) {
+        if (!task.getCategory().getId().equals(requestDto.categoryId())) {
             Category category = categoryRepository.findById(requestDto.categoryId())
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Category with ID " + requestDto.categoryId() + " doest not exists")

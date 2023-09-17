@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
                 .map(userMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
 
-        log.info("Finished retrieving user by ID: {}", id);
+        log.info("Finished retrieving user by ID: {}", userResponseDto.id());
 
         return userResponseDto;
     }

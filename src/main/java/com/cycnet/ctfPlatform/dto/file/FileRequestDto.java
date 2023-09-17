@@ -11,6 +11,6 @@ public record FileRequestDto (
 
         @NotNull(message = "File id cannot be null")
         @Positive(message = "File id must be positive")
-        long taskId
+        Long taskId
 
 ) { }

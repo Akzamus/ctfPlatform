@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .map(categoryMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
 
-        log.info("Finished retrieving category by ID: {}", id);
+        log.info("Finished retrieving category by ID: {}", categoryResponseDto.id());
 
         return categoryResponseDto;
     }

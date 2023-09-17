@@ -4,7 +4,6 @@ import com.cycnet.ctfPlatform.configurations.properties.MinioProperties;
 import com.cycnet.ctfPlatform.exceptions.entity.EntityNotFoundException;
 import com.cycnet.ctfPlatform.exceptions.server.InternalServerErrorException;
 import com.cycnet.ctfPlatform.services.StorageService;
-import com.cycnet.ctfPlatform.utils.FileUtils;
 import io.minio.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.ZoneId;
 
 @Slf4j
 @Service
@@ -23,33 +21,33 @@ public class MinioService implements StorageService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
-    private final ZoneId zoneId;
 
     @Override
-    public String uploadFile(MultipartFile multipartFile) {
+    public String uploadFile(String folderPath, MultipartFile multipartFile) {
         try {
-            return uploadFile(multipartFile.getName(), multipartFile.getInputStream());
+            return uploadFile(
+                    folderPath + "/" + multipartFile.getOriginalFilename().replaceAll(" ", ""),
+                    multipartFile.getInputStream()
+            );
         } catch (IOException e) {
             throw new InternalServerErrorException(e.getMessage(), e);
         }
     }
 
     @Override
-    public String uploadFile(String path, InputStream inputStream) {
+    public String uploadFile(String filePath, InputStream inputStream) {
         try {
-            path = FileUtils.addTimestampToFileName(path, zoneId);
-
-            log.info("Uploading file with file name: {}", path);
+            log.info("Uploading file with file name: {}", filePath);
 
             ObjectWriteResponse objectWriteResponse = minioClient.putObject(
                     PutObjectArgs.builder()
                             .stream(inputStream, inputStream.available(), -1)
                             .bucket(minioProperties.bucketName())
-                            .object(path)
+                            .object(filePath)
                             .build()
             );
 
-            log.info("Uploaded file: {}", path);
+            log.info("Uploaded file: {}", filePath);
 
             return objectWriteResponse.object();
         } catch (RuntimeException e) {
@@ -60,20 +58,20 @@ public class MinioService implements StorageService {
     }
 
     @Override
-    public byte[] getFile(String path) {
+    public byte[] getFile(String filePath) {
         try {
-            throwExceptionIfFileDoesNotExists(path);
+            throwExceptionIfFileDoesNotExists(filePath);
 
-            log.info("Downloading file with file name: {}", path);
+            log.info("Downloading file with file name: {}", filePath);
 
             GetObjectResponse getObjectResponse = minioClient.getObject(
                     GetObjectArgs.builder()
                             .bucket(minioProperties.bucketName())
-                            .object(path)
+                            .object(filePath)
                             .build()
             );
 
-            log.info("Downloaded file: {}", path);
+            log.info("Downloaded file: {}", filePath);
 
             return getObjectResponse.readAllBytes();
         } catch (RuntimeException e) {
@@ -87,8 +85,6 @@ public class MinioService implements StorageService {
     public String renameFile(String oldPath, String newPath) {
         try {
             throwExceptionIfFileDoesNotExists(oldPath);
-
-            newPath = FileUtils.addTimestampToFileName(newPath, zoneId);
 
             log.info("Renaming file from {} to {}", oldPath, newPath);
 
