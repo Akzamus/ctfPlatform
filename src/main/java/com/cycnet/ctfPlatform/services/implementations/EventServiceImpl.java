@@ -41,11 +41,10 @@ public class EventServiceImpl implements EventService {
     public EventResponseDto getById(long id) {
         log.info("Retrieving event by ID: {}", id);
 
-        EventResponseDto eventResponseDto = eventRepository.findById(id)
-                .map(eventMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " does not exist."));
+        Event event = getEntityById(id);
+        EventResponseDto eventResponseDto = eventMapper.toDto(event);
 
-        log.info("Finished retrieving event by ID: {}", eventResponseDto.id());
+        log.info("Finished retrieving event by ID: {}", event.getId());
 
         return eventResponseDto;
     }
@@ -71,8 +70,7 @@ public class EventServiceImpl implements EventService {
     public EventResponseDto update(long id, EventRequestDto requestDto) {
         log.info("Updating event with ID: {}", id);
 
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " does not exist."));
+        Event event = getEntityById(id);
 
         String newName = requestDto.name();
 
@@ -97,12 +95,16 @@ public class EventServiceImpl implements EventService {
     public void delete(long id) {
         log.info("Deleting event with ID: {}", id);
 
-        Event existingEvent = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " does not exist"));
-
+        Event existingEvent = getEntityById(id);
         eventRepository.delete(existingEvent);
 
         log.info("Deleted event with ID: {}", id);
+    }
+
+    @Override
+    public Event getEntityById(long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Event with ID " + id + " does not exist"));
     }
 
     private void throwExceptionIfEventExists(String name) {

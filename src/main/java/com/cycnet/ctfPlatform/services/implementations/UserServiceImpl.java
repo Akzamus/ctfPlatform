@@ -44,9 +44,8 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto getById(long id) {
         log.info("Retrieving user by ID: {}", id);
 
-        UserResponseDto userResponseDto = userRepository.findById(id)
-                .map(userMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
+        User user = getEntityById(id);
+        UserResponseDto userResponseDto = userMapper.toDto(user);
 
         log.info("Finished retrieving user by ID: {}", userResponseDto.id());
 
@@ -63,6 +62,7 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.toEntity(userRequestDto);
         String password = userRequestDto.password();
         user.setPassword(passwordEncoder.encode(password));
+
         user = userRepository.save(user);
         UserResponseDto userResponseDto = userMapper.toDto(user);
 
@@ -76,9 +76,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto update(long id, UserRequestDto requestDto) {
         log.info("Updating user with ID: {}", id);
 
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
-
+        User user = getEntityById(id);
         String newEmail = requestDto.email();
 
         if (!user.getEmail().equals(newEmail)) {
@@ -87,6 +85,7 @@ public class UserServiceImpl implements UserService {
         }
 
         user.setRole(Role.valueOf(requestDto.role()));
+
         String password = requestDto.password();
         user.setPassword(passwordEncoder.encode(password));
 
@@ -103,15 +102,20 @@ public class UserServiceImpl implements UserService {
     public void delete(long id) {
         log.info("Deleting user with ID: {}", id);
 
-        User existingUser = userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
-
+        User existingUser = getEntityById(id);
         userRepository.delete(existingUser);
 
         log.info("Deleted user with ID: {}", id);
     }
 
-    private void throwExceptionIfUserExists(String email) {
+    @Override
+    public User getEntityById(long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User with ID " + id + " does not exist"));
+    }
+
+    @Override
+    public void throwExceptionIfUserExists(String email) {
         userRepository.findByEmail(email)
                 .ifPresent(foundUser -> {
                     throw new EntityAlreadyExistsException(

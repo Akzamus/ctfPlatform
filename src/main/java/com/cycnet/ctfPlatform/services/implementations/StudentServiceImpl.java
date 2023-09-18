@@ -9,16 +9,14 @@ import com.cycnet.ctfPlatform.mappers.StudentMapper;
 import com.cycnet.ctfPlatform.models.Student;
 import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.StudentRepository;
-import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.StudentService;
+import com.cycnet.ctfPlatform.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
 
 @Slf4j
 @Service
@@ -27,7 +25,7 @@ import java.util.Objects;
 public class StudentServiceImpl implements StudentService {
 
     private final StudentRepository studentRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final StudentMapper studentMapper;
 
 
@@ -47,9 +45,8 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponseDto getById(long id) {
         log.info("Retrieving student with ID: {}", id);
 
-        StudentResponseDto studentResponseDto = studentRepository.findById(id)
-                .map(studentMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Student with ID " + id + " doest not exists"));
+        Student student = getEntityById(id);
+        StudentResponseDto studentResponseDto = studentMapper.toDto(student);
 
         log.info("Finished retrieving student by ID: {}", studentResponseDto.id());
 
@@ -61,20 +58,9 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponseDto create(StudentRequestDto requestDto) {
         log.info("Creating a new student for user with ID: {}", requestDto.userId());
 
-        User user = userRepository.findById(requestDto.userId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "User with ID " + requestDto.userId() + " does not exist."
-                ));
-
-        Student student = user.getStudent();
-
-        if (Objects.nonNull(student)) {
-            throw new UserAlreadyLinkedStudentException(
-                    "User already linked to student with ID : " + student.getId()
-            );
-        }
-
-        student = studentMapper.toEntity(requestDto);
+        User user = userService.getEntityById(requestDto.userId());
+        throwExceptionIfUserAlreadyLinkedToStudent(user);
+        Student student = studentMapper.toEntity(requestDto);
 
         student.setUser(user);
         user.setStudent(student);
@@ -94,27 +80,14 @@ public class StudentServiceImpl implements StudentService {
     public StudentResponseDto update(long id, StudentRequestDto requestDto) {
         log.info("Updating student with ID: {}", id);
 
-        Student existingStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student with ID " + id + " does not exist."));
-
-        log.info("Found existing student with ID: {} ", existingStudent.getId());
+        Student existingStudent = getEntityById(id);
 
         long newUserId = requestDto.userId();
 
         if (existingStudent.getUser().getId() != newUserId) {
 
-            User user = userRepository.findById(newUserId)
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "User with ID " + newUserId + " does not exist."
-                    ));
-
-            Student student = user.getStudent();
-
-            if (Objects.nonNull(student)) {
-                throw new UserAlreadyLinkedStudentException(
-                        "User already linked to student with ID : " + student.getId()
-                );
-            }
+            User user = userService.getEntityById(newUserId);
+            throwExceptionIfUserAlreadyLinkedToStudent(user);
 
             existingStudent.setUser(user);
             user.setStudent(existingStudent);
@@ -143,11 +116,26 @@ public class StudentServiceImpl implements StudentService {
     public void delete(long id) {
         log.info("Deleting student with ID: {}", id);
 
-        Student existingStudent = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student with id " + id + " does not exist."));
-
+        Student existingStudent = getEntityById(id);
         studentRepository.delete(existingStudent);
 
         log.info("Deleted student with ID: {}", id);
     }
+
+    @Override
+    public Student getEntityById(long id) {
+        return studentRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Student with id " + id + " does not exist."));
+    }
+
+    private void throwExceptionIfUserAlreadyLinkedToStudent(User user) {
+        Student student = user.getStudent();
+
+        if (student != null) {
+            throw new UserAlreadyLinkedStudentException(
+                    "User already linked to student with ID : " + student.getId()
+            );
+        }
+    }
+
 }

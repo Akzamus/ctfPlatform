@@ -9,9 +9,9 @@ import com.cycnet.ctfPlatform.mappers.FileMapper;
 import com.cycnet.ctfPlatform.models.File;
 import com.cycnet.ctfPlatform.models.Task;
 import com.cycnet.ctfPlatform.repositories.FileRepository;
-import com.cycnet.ctfPlatform.repositories.TaskRepository;
 import com.cycnet.ctfPlatform.services.FileService;
 import com.cycnet.ctfPlatform.services.StorageService;
+import com.cycnet.ctfPlatform.services.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,7 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class FileServiceImpl implements FileService {
 
     private final FileRepository fileRepository;
-    private final TaskRepository taskRepository;
+    private final TaskService taskService;
     private final StorageService storageService;
     private final FileMapper fileMapper;
     private final String TASK_FOLDER = "tasks";
@@ -48,11 +48,10 @@ public class FileServiceImpl implements FileService {
     public FileResponseDto getById(long id) {
         log.info("Retrieving file by ID: {}", id);
 
-        FileResponseDto fileResponseDto = fileRepository.findById(id)
-                .map(fileMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("File with ID " + id + " does not exist."));
+        File file = getEntityById(id);
+        FileResponseDto fileResponseDto = fileMapper.toDto(file);
 
-        log.info("Finished retrieving file by ID: {}", fileResponseDto.id());
+        log.info("Finished retrieving file by ID: {}", file.getId());
 
         return fileResponseDto;
     }
@@ -62,10 +61,7 @@ public class FileServiceImpl implements FileService {
     public FileResponseDto create(FileRequestDto requestDto) {
         log.info("Creating a new file for task with ID: {}", requestDto.taskId());
 
-        Task task = taskRepository.findById(requestDto.taskId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Task with ID " + requestDto.taskId() + " does not exist."
-                ));
+        Task task = taskService.getEntityById(requestDto.taskId());
 
         MultipartFile multipartFile = requestDto.file();
         String folderPath = TASK_FOLDER + "/" + task.getId();
@@ -92,21 +88,16 @@ public class FileServiceImpl implements FileService {
     public FileResponseDto update(long id, FileRequestDto requestDto) {
         log.info("Updating a new file with id: {}", id);
 
-        File file = fileRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "File with ID " + id + " does not exist."
-                ));
+        File file = getEntityById(id);
 
         MultipartFile multipartFile = requestDto.file();
         String folderPath = TASK_FOLDER + "/" + requestDto.taskId();
         String filePath = folderPath + "/" + multipartFile.getOriginalFilename().replaceAll(" ", "");
 
-        if (!file.getTask().getId().equals(requestDto.taskId())) {
-            Task task = taskRepository.findById(requestDto.taskId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Task with ID " + requestDto.taskId() + " does not exist."
-                    ));
+        long taskId = requestDto.taskId();
 
+        if (file.getTask().getId() != taskId) {
+            Task task = taskService.getEntityById(taskId);
             file.setTask(task);
 
             log.info("Task with ID {} has been set for file with ID: {}", task.getId(), file.getId());
@@ -137,16 +128,20 @@ public class FileServiceImpl implements FileService {
     public void delete(long id) {
         log.info("Deleting file with ID: {}", id);
 
-        File file = fileRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "File with ID " + id + " does not exist."
-                ));
-
+        File file = getEntityById(id);
         fileRepository.delete(file);
 
         log.info("Deleted file with ID: {}", file.getId());
 
         storageService.deleteFile(file.getPath());
+    }
+
+    @Override
+    public File getEntityById(long id) {
+        return fileRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "File with ID " + id + " does not exist."
+                ));
     }
 
     private void throwExceptionIfFileWithTaskAndPathExists(Task task, String path) {

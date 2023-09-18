@@ -41,9 +41,8 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto getById(long id) {
         log.info("Retrieving category by ID: {}", id);
 
-        CategoryResponseDto categoryResponseDto = categoryRepository.findById(id)
-                .map(categoryMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
+        Category category = getEntityById(id);
+        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
 
         log.info("Finished retrieving category by ID: {}", categoryResponseDto.id());
 
@@ -71,9 +70,7 @@ public class CategoryServiceImpl implements CategoryService {
     public CategoryResponseDto update(long id, CategoryRequestDto categoryRequestDto) {
         log.info("Updating category with ID: {}", id);
 
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
-
+        Category category = getEntityById(id);
         String newName = categoryRequestDto.name();
 
         if (!category.getName().equals(newName)) {
@@ -94,12 +91,16 @@ public class CategoryServiceImpl implements CategoryService {
     public void delete(long id) {
         log.info("Deleting category with ID: {}", id);
 
-        Category existingCategory = categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
-
+        Category existingCategory = getEntityById(id);
         categoryRepository.delete(existingCategory);
 
         log.info("Deleted category with ID: {}", id);
+    }
+
+    @Override
+    public Category getEntityById(long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
     }
 
     private void throwExceptionIfCategoryExists(String categoryName) {

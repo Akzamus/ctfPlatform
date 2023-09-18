@@ -41,9 +41,8 @@ public class TeamServiceImpl implements TeamService {
     public TeamResponseDto getById(long id) {
         log.info("Retrieving team by ID: {}", id);
 
-        TeamResponseDto teamResponseDto = teamRepository.findById(id)
-                .map(teamMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
+        Team team = getEntityById(id);
+        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
 
         log.info("Finished retrieving team by ID: {}", teamResponseDto.id());
 
@@ -70,8 +69,7 @@ public class TeamServiceImpl implements TeamService {
     public TeamResponseDto update(long id, TeamRequestDto requestDto) {
         log.info("Updating team with ID: {}", id);
 
-        Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
+        Team team = getEntityById(id);
 
         String newName = requestDto.name();
 
@@ -93,12 +91,16 @@ public class TeamServiceImpl implements TeamService {
     public void delete(long id) {
         log.info("Deleting team with ID: {}", id);
 
-        Team existingTeam = teamRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
-
+        Team existingTeam = getEntityById(id);
         teamRepository.delete(existingTeam);
 
         log.info("Deleted team with ID: {}", id);
+    }
+
+    @Override
+    public Team getEntityById(long id) {
+        return teamRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Team with ID " + id + " does not exist"));
     }
 
     private void throwExceptionIfTeamExists(String name) {

@@ -9,9 +9,9 @@ import com.cycnet.ctfPlatform.mappers.TaskMapper;
 import com.cycnet.ctfPlatform.models.Category;
 import com.cycnet.ctfPlatform.models.Event;
 import com.cycnet.ctfPlatform.models.Task;
-import com.cycnet.ctfPlatform.repositories.CategoryRepository;
-import com.cycnet.ctfPlatform.repositories.EventRepository;
 import com.cycnet.ctfPlatform.repositories.TaskRepository;
+import com.cycnet.ctfPlatform.services.CategoryService;
+import com.cycnet.ctfPlatform.services.EventService;
 import com.cycnet.ctfPlatform.services.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final CategoryRepository categoryRepository;
-    private final EventRepository eventRepository;
+    private final CategoryService categoryService;
+    private final EventService eventService;
     private final TaskMapper taskMapper;
 
     @Override
@@ -47,9 +47,8 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto getById(long id) {
         log.info("Retrieving task by ID: {}", id);
 
-        TaskResponseDto taskResponseDto = taskRepository.findById(id)
-                .map(taskMapper::toDto)
-                .orElseThrow(() -> new EntityNotFoundException("Task with ID " + id + " does not exist"));
+        Task task = getEntityById(id);
+        TaskResponseDto taskResponseDto = taskMapper.toDto(task);
 
         log.info("Finished retrieving team by ID: {}", taskResponseDto.id());
 
@@ -61,20 +60,11 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto create(TaskRequestDto requestDto) {
         log.info("Creating a new task for event with ID: {}", requestDto.eventId());
 
+        Event event = eventService.getEntityById(requestDto.eventId());
+        throwExceptionIfTaskWithEventAndNameExists(event, requestDto.name());
+        Category category = categoryService.getEntityById(requestDto.categoryId());
+
         Task task = taskMapper.toEntity(requestDto);
-
-        Event event = eventRepository.findById(requestDto.eventId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Event with ID " + requestDto.eventId() + " doest not exists")
-                );
-
-        throwExceptionIfTaskWithEventAndNameExists(event, task.getName());
-
-        Category category = categoryRepository.findById(requestDto.categoryId())
-                .orElseThrow(() -> new EntityNotFoundException(
-                        "Category with ID " + requestDto.categoryId() + " doest not exists")
-                );
-
         task.setEvent(event);
         task.setCategory(category);
 
@@ -93,28 +83,22 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponseDto update(long id, TaskRequestDto requestDto) {
         log.info("Updating a new task with id: {}", id);
 
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() ->  new EntityNotFoundException("Task with id " + id + " does not exist."));
+        Task task = getEntityById(id);
 
-        if (!task.getEvent().getId().equals(requestDto.eventId())) {
-            Event event = eventRepository.findById(requestDto.eventId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Event with ID " + requestDto.eventId() + " doest not exists")
-                    );
+        long eventId = requestDto.eventId();
 
+        if (!task.getEvent().getId().equals(eventId)) {
+            Event event = eventService.getEntityById(eventId);
             throwExceptionIfTaskWithEventAndNameExists(event, task.getName());
-
             task.setEvent(event);
 
             log.info("Event with ID {} has been set for task with ID: {}", event.getId(), task.getId());
         }
 
-        if (!task.getCategory().getId().equals(requestDto.categoryId())) {
-            Category category = categoryRepository.findById(requestDto.categoryId())
-                    .orElseThrow(() -> new EntityNotFoundException(
-                            "Category with ID " + requestDto.categoryId() + " doest not exists")
-                    );
+        long categoryId = requestDto.categoryId();
 
+        if (!task.getCategory().getId().equals(categoryId)) {
+            Category category = categoryService.getEntityById(categoryId);
             task.setCategory(category);
 
             log.info("Category with ID {} has been set for task with ID: {}", category.getId(), task.getId());
@@ -138,12 +122,16 @@ public class TaskServiceImpl implements TaskService {
     public void delete(long id) {
         log.info("Deleting task with ID: {}", id);
 
-        Task existingTask = taskRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
-
+        Task existingTask = getEntityById(id);
         taskRepository.delete(existingTask);
 
         log.info("Deleted task with ID: {}", id);
+    }
+
+    @Override
+    public Task getEntityById(long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
     }
 
     private void throwExceptionIfTaskWithEventAndNameExists(Event event, String name) {

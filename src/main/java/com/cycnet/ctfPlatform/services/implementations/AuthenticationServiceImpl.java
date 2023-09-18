@@ -6,7 +6,6 @@ import com.cycnet.ctfPlatform.dto.auth.RegisterRequestDto;
 import com.cycnet.ctfPlatform.enums.Role;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtSubjectMissingException;
 import com.cycnet.ctfPlatform.exceptions.auth.JwtTokenExpiredException;
-import com.cycnet.ctfPlatform.exceptions.entity.EntityAlreadyExistsException;
 import com.cycnet.ctfPlatform.exceptions.entity.EntityNotFoundException;
 import com.cycnet.ctfPlatform.jwt.JwtFactory;
 import com.cycnet.ctfPlatform.jwt.JwtParser;
@@ -15,6 +14,7 @@ import com.cycnet.ctfPlatform.models.Student;
 import com.cycnet.ctfPlatform.models.User;
 import com.cycnet.ctfPlatform.repositories.UserRepository;
 import com.cycnet.ctfPlatform.services.AuthenticationService;
+import com.cycnet.ctfPlatform.services.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final UserRepository userRepository;
+    private final UserService userService;
     private final JwtFactory jwtFactory;
     private final JwtValidator jwtValidator;
     private final JwtParser jwtParser;
@@ -41,12 +42,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     public AuthenticationResponseDto register(RegisterRequestDto request) {
         log.info("Received registration request for email: {}", request.email());
 
-        userRepository.findByEmail(request.email())
-                .ifPresent(foundUser -> {
-                    throw new EntityAlreadyExistsException(
-                            "User with the email " + foundUser.getEmail() + " already exists."
-                    );
-                });
+        userService.throwExceptionIfUserExists(request.email());
 
         Student student = Student.builder()
                 .firstName(request.firstName())
