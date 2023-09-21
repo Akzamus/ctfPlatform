@@ -81,13 +81,13 @@ public class TaskServiceImpl implements TaskService {
     @Override
     @Transactional
     public TaskResponseDto update(long id, TaskRequestDto requestDto) {
-        log.info("Updating a new task with id: {}", id);
+        log.info("Updating a task with ID: {}", id);
 
         Task task = getEntityById(id);
 
         long eventId = requestDto.eventId();
 
-        if (!task.getEvent().getId().equals(eventId)) {
+        if (task.getEvent().getId() != eventId) {
             Event event = eventService.getEntityById(eventId);
             throwExceptionIfTaskWithEventAndNameExists(event, task.getName());
             task.setEvent(event);
@@ -97,7 +97,7 @@ public class TaskServiceImpl implements TaskService {
 
         long categoryId = requestDto.categoryId();
 
-        if (!task.getCategory().getId().equals(categoryId)) {
+        if (task.getCategory().getId() != categoryId) {
             Category category = categoryService.getEntityById(categoryId);
             task.setCategory(category);
 

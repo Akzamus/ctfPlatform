@@ -23,7 +23,7 @@ public class FileController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<FileResponseDto> getAllTeams(
+    public PageResponseDto<FileResponseDto> getAllFiles(
             @RequestParam(defaultValue = "0")
             @Min(value = 0, message = "Page number must be greater than or equal to 0") int page,
 
@@ -35,7 +35,7 @@ public class FileController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public FileResponseDto getTeamById(
+    public FileResponseDto getFileById(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
         return fileService.getById(id);
@@ -43,7 +43,7 @@ public class FileController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public FileResponseDto createTeam(
+    public FileResponseDto createFile(
             @ModelAttribute @Valid FileRequestDto fileRequestDto
     ) {
         return fileService.create(fileRequestDto);
@@ -51,7 +51,7 @@ public class FileController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public FileResponseDto updateTeam(
+    public FileResponseDto updateFile(
             @PathVariable @Positive(message = "Id must be positive") long id,
             @ModelAttribute @Valid FileRequestDto fileRequestDto
     ) {
@@ -60,7 +60,7 @@ public class FileController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteTeam(
+    public void deleteFile(
             @PathVariable @Positive(message = "Id must be greater than zero") long id
     ) {
         fileService.delete(id);

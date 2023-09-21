@@ -35,8 +35,11 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
     @Override
     public PageResponseDto<TeamRegistrationResponseDto> getAll(int pageNumber, int pageSize) {
 
-        Page<TeamRegistration> teamRegistrationPage = teamRegistrationRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<TeamRegistrationResponseDto> teamRegistrationResponseDtoPageResponseDto = teamRegistrationMapper.toDto(teamRegistrationPage);
+        Page<TeamRegistration> teamRegistrationPage = teamRegistrationRepository.findAll(
+                PageRequest.of(pageNumber, pageSize)
+        );
+        PageResponseDto<TeamRegistrationResponseDto> teamRegistrationResponseDtoPageResponseDto =
+                teamRegistrationMapper.toDto(teamRegistrationPage);
 
         return teamRegistrationResponseDtoPageResponseDto;
     }
@@ -56,7 +59,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         Team team = teamService.getEntityById(requestDto.teamId());
         Event event = eventService.getEntityById(requestDto.eventId());
 
-        throwExceptionIfTeamRegistrationWithTeamAndEventExists(team, event);
+        throwExceptionIfTeamRegistrationExists(team, event);
 
         TeamRegistration teamRegistration = teamRegistrationMapper.toEntity(requestDto);
 
@@ -78,8 +81,8 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         Team team = teamRegistration.getTeam();
         Event event = teamRegistration.getEvent();
 
-        long teamId = teamRegistration.getTeam().getId();
-        long eventId = teamRegistration.getEvent().getId();
+        long teamId = team.getId();
+        long eventId = event.getId();
 
         if (requestDto.teamId() != teamId) {
             team = teamService.getEntityById(requestDto.teamId());
@@ -93,7 +96,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
                 requestDto.eventId() != eventId ||
                 requestDto.teamId() != teamId
         ) {
-            throwExceptionIfTeamRegistrationWithTeamAndEventExists(team, event);
+            throwExceptionIfTeamRegistrationExists(team, event);
         }
 
         teamRegistration.setTeam(team);
@@ -119,11 +122,12 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
                 .orElseThrow(() -> new EntityNotFoundException("Registration with id " + id  +" does not exists"));
     }
 
-    private void throwExceptionIfTeamRegistrationWithTeamAndEventExists(Team team, Event event) {
+    private void throwExceptionIfTeamRegistrationExists(Team team, Event event) {
         teamRegistrationRepository.findByTeamAndEvent(team, event)
-                .ifPresent(foundTeam -> {
+                .ifPresent(foundTeamRegistration -> {
                     throw new EntityAlreadyExistsException(
-                            "Team with ID " + foundTeam.getId() + " already registered for the event with ID: " +
+                            "Team with ID " + foundTeamRegistration.getId() +
+                                    " already registered for the event with ID: " +
                                     event.getId() + "."
                     );
                 });

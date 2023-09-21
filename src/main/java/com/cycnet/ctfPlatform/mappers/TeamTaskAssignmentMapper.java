@@ -1,15 +1,16 @@
 package com.cycnet.ctfPlatform.mappers;
 
 import com.cycnet.ctfPlatform.dto.teamTaskAssignment.TeamTaskAssignmentRequestDto;
+import com.cycnet.ctfPlatform.dto.teamTaskAssignment.TeamTaskAssignmentResponseDto;
 import com.cycnet.ctfPlatform.models.TeamTaskAssignment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring",uses = { TeamRegistrationMapper.class, TaskMapper.class })
+@Mapper(componentModel = "spring", uses = { TeamRegistrationMapper.class, TaskMapper.class })
 public interface TeamTaskAssignmentMapper extends Mappable<
         TeamTaskAssignment,
         TeamTaskAssignmentRequestDto,
-        TeamTaskAssignmentMapper
+        TeamTaskAssignmentResponseDto
 > {
 
     @Override

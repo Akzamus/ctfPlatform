@@ -21,7 +21,7 @@ public class TaskController {
     private final TaskService taskService;
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public PageResponseDto<TaskResponseDto> getAllStudents(
+    public PageResponseDto<TaskResponseDto> getAllTasks(
             @RequestParam(defaultValue = "0")
             @Range(min = 0, message = "Page number must be greater than or equal to 0") int page,
 
@@ -33,7 +33,7 @@ public class TaskController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskResponseDto getStudentById(
+    public TaskResponseDto getTaskById(
             @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         return taskService.getById(id);
@@ -41,7 +41,7 @@ public class TaskController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TaskResponseDto createStudent(
+    public TaskResponseDto createTask(
             @RequestBody @Valid TaskRequestDto taskRequestDto
     ) {
         return taskService.create(taskRequestDto);
@@ -49,7 +49,7 @@ public class TaskController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public TaskResponseDto updateStudent(
+    public TaskResponseDto updateTask(
             @PathVariable @Positive(message = "Id must be positive") long id,
             @RequestBody @Valid TaskRequestDto taskRequestDto
     ) {
@@ -58,7 +58,7 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteStudent(
+    public void deleteTask(
             @PathVariable @Positive(message = "Id must be positive") long id
     ) {
         taskService.delete(id);

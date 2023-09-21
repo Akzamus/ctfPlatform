@@ -7,7 +7,11 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring",uses = { TeamMapper.class, EventMapper.class })
-public interface TeamRegistrationMapper extends Mappable<TeamRegistration, TeamRegistrationRequestDto, TeamRegistrationResponseDto> {
+public interface TeamRegistrationMapper extends Mappable<
+        TeamRegistration,
+        TeamRegistrationRequestDto,
+        TeamRegistrationResponseDto
+> {
 
     @Override
     @Mapping(target = "id", ignore = true)
