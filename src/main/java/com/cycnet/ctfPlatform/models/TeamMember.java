@@ -2,10 +2,7 @@ package com.cycnet.ctfPlatform.models;
 
 import com.cycnet.ctfPlatform.enums.TeamRole;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Data
 @Builder
