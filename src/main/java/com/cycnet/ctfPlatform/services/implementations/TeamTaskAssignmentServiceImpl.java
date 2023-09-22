@@ -33,14 +33,12 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
     public PageResponseDto<TeamTaskAssignmentResponseDto> getAll(int pageNumber, int pageSize) {
         log.info("Retrieving TeamTaskAssignments, page number: {}, page size: {}", pageNumber, pageSize);
 
-        Page<TeamTaskAssignment> teamTaskAssignmentPage = teamTaskAssignmentRepository
-                .findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<TeamTaskAssignmentResponseDto> teamTaskAssignmentPageResponseDto = teamTaskAssignmentMapper
-                .toDto(teamTaskAssignmentPage);
+        Page<TeamTaskAssignment> page = teamTaskAssignmentRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<TeamTaskAssignmentResponseDto> pageResponseDto = teamTaskAssignmentMapper.toDto(page);
 
         log.info("Finished retrieving TeamTaskAssignments, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return teamTaskAssignmentPageResponseDto;
+        return pageResponseDto;
     }
 
     @Override
@@ -48,12 +46,11 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
         log.info("Retrieving TeamTaskAssignment with ID: {}", id);
 
         TeamTaskAssignment teamTaskAssignment = getEntityById(id);
-        TeamTaskAssignmentResponseDto teamTaskAssignmentResponseDto = teamTaskAssignmentMapper
-                .toDto(teamTaskAssignment);
+        TeamTaskAssignmentResponseDto responseDto = teamTaskAssignmentMapper.toDto(teamTaskAssignment);
 
         log.info("Finished retrieving TeamTaskAssignment by ID: {}", teamTaskAssignment.getId());
 
-        return teamTaskAssignmentResponseDto;
+        return responseDto;
     }
 
     @Override
@@ -69,23 +66,22 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
 
         throwExceptionIfTeamTaskAssignmentExists(teamRegistration, task);
 
+        TeamTaskAssignment teamTaskAssignment = teamTaskAssignmentMapper.toEntity(requestDto);
+        teamTaskAssignment.setTeamRegistration(teamRegistration);
+        teamTaskAssignment.setTask(task);
+
         log.info(
                 "TeamRegistration with ID {} and Task with ID {}  are set for TeamTaskAssignment",
                 teamRegistration.getId(),
                 task.getId()
         );
 
-        TeamTaskAssignment teamTaskAssignment = teamTaskAssignmentMapper.toEntity(requestDto);
-        teamTaskAssignment.setTeamRegistration(teamRegistration);
-        teamTaskAssignment.setTask(task);
-
         teamTaskAssignment = teamTaskAssignmentRepository.save(teamTaskAssignment);
-        TeamTaskAssignmentResponseDto teamTaskAssignmentResponseDto = teamTaskAssignmentMapper
-                .toDto(teamTaskAssignment);
+        TeamTaskAssignmentResponseDto responseDto = teamTaskAssignmentMapper.toDto(teamTaskAssignment);
 
         log.info("Created a new TeamTaskAssignment with ID: {}", teamTaskAssignment.getId());
 
-        return teamTaskAssignmentResponseDto;
+        return responseDto;
     }
 
     @Override
@@ -97,23 +93,26 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
         TeamRegistration teamRegistration = teamTaskAssignment.getTeamRegistration();
         Task task = teamTaskAssignment.getTask();
 
-        long teamRegistrationId = teamRegistration.getId();
-        long taskId = task.getId();
+        long oldTeamRegistrationId = teamRegistration.getId();
+        long oldTaskId = task.getId();
 
-        if (requestDto.teamRegistrationId() != teamRegistrationId) {
-            teamRegistration = teamRegistrationService.getEntityById(requestDto.teamRegistrationId());
+        long newTeamRegistrationId = requestDto.teamRegistrationId();
+        long newTaskId = requestDto.taskId();
+
+        if (newTeamRegistrationId != oldTeamRegistrationId) {
+            teamRegistration = teamRegistrationService.getEntityById(newTeamRegistrationId);
             throwExceptionIfTeamTaskAssignmentExists(teamRegistration, task);
             teamTaskAssignment.setTeamRegistration(teamRegistration);
 
             log.info(
                     "TeamRegistration with ID {} has been set for TeamTaskAssignment with ID: {}",
                     teamRegistration.getId(),
-                    teamTaskAssignment.getId())
-            ;
+                    teamTaskAssignment.getId()
+            );
         }
 
-        if (requestDto.taskId() != taskId) {
-            task = taskService.getEntityById(requestDto.taskId());
+        if (newTaskId != oldTaskId) {
+            task = taskService.getEntityById(newTaskId);
             throwExceptionIfTeamTaskAssignmentExists(teamRegistration, task);
             teamTaskAssignment.setTask(task);
 
@@ -124,15 +123,16 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
             );
         }
 
-        teamTaskAssignment.setCorrectAnswer(requestDto.correctAnswer());
+        teamTaskAssignment.setCorrectAnswer(
+                requestDto.correctAnswer()
+        );
 
         teamTaskAssignment = teamTaskAssignmentRepository.save(teamTaskAssignment);
-        TeamTaskAssignmentResponseDto teamTaskAssignmentResponseDto = teamTaskAssignmentMapper
-                .toDto(teamTaskAssignment);
+        TeamTaskAssignmentResponseDto responseDto = teamTaskAssignmentMapper.toDto(teamTaskAssignment);
 
         log.info("Updated TeamTaskAssignment with ID: {}", teamTaskAssignment.getId());
 
-        return teamTaskAssignmentResponseDto;
+        return responseDto;
     }
 
     @Override
@@ -153,15 +153,15 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
                 ));
     }
 
-    private void throwExceptionIfTeamTaskAssignmentExists(
-            TeamRegistration teamRegistration,
-            Task task
-    ) {
+    private void throwExceptionIfTeamTaskAssignmentExists(TeamRegistration teamRegistration, Task task) {
         teamTaskAssignmentRepository.findByTeamRegistrationAndTask(teamRegistration, task)
                 .ifPresent(foundTeamTaskAssignment-> {
                     throw new EntityAlreadyExistsException(
-                            "Team with registration ID " + teamRegistration.getId() +
-                                    " has already been given a task with ID " + task.getId() + "."
+                            String.format(
+                                    "Team with registration ID %d has already been given a task with ID %d.",
+                                    teamRegistration.getId(),
+                                    task.getId()
+                            )
                     );
                 });
     }

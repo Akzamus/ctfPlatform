@@ -34,20 +34,24 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
 
     @Override
     public PageResponseDto<TeamRegistrationResponseDto> getAll(int pageNumber, int pageSize) {
+        log.info("Retrieving TeamRegistration, page number: {}, page size: {}", pageNumber, pageSize);
 
-        Page<TeamRegistration> teamRegistrationPage = teamRegistrationRepository.findAll(
-                PageRequest.of(pageNumber, pageSize)
-        );
-        PageResponseDto<TeamRegistrationResponseDto> teamRegistrationResponseDtoPageResponseDto =
-                teamRegistrationMapper.toDto(teamRegistrationPage);
+        Page<TeamRegistration> page = teamRegistrationRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<TeamRegistrationResponseDto> responseDto = teamRegistrationMapper.toDto(page);
 
-        return teamRegistrationResponseDtoPageResponseDto;
+        log.info("Finished retrieving TeamRegistration, page number: {}, page size: {}", pageNumber, pageSize);
+
+        return responseDto;
     }
 
     @Override
     public TeamRegistrationResponseDto getById(long id) {
+        log.info("Retrieving TeamRegistration with ID: {}", id);
+
         TeamRegistration teamRegistration = getEntityById(id);
         TeamRegistrationResponseDto teamRegistrationResponseDto = teamRegistrationMapper.toDto(teamRegistration);
+
+        log.info("Finished retrieving TeamRegistration by ID: {}", teamRegistration.getId());
 
         return teamRegistrationResponseDto;
     }
@@ -55,6 +59,11 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
     @Override
     @Transactional
     public TeamRegistrationResponseDto create(TeamRegistrationRequestDto requestDto) {
+        log.info(
+                "Creating a new TeamRegistration for Team with ID {} and Event with ID {}",
+                requestDto.teamId(),
+                requestDto.eventId()
+        );
 
         Team team = teamService.getEntityById(requestDto.teamId());
         Event event = eventService.getEntityById(requestDto.eventId());
@@ -62,58 +71,84 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         throwExceptionIfTeamRegistrationExists(team, event);
 
         TeamRegistration teamRegistration = teamRegistrationMapper.toEntity(requestDto);
-
-        teamRegistration.setTeamResult(TeamResult.valueOf(requestDto.teamResult()));
         teamRegistration.setTeam(team);
         teamRegistration.setEvent(event);
 
-        teamRegistration = teamRegistrationRepository.save(teamRegistration);
-        TeamRegistrationResponseDto teamRegistrationResponseDto = teamRegistrationMapper.toDto(teamRegistration);
+        log.info(
+                "Team with ID {} and Event with ID {}  are set for TeamRegistration",
+                team.getId(),
+                event.getId()
+        );
 
-        return teamRegistrationResponseDto;
+        teamRegistration = teamRegistrationRepository.save(teamRegistration);
+        TeamRegistrationResponseDto responseDto = teamRegistrationMapper.toDto(teamRegistration);
+
+        log.info("Created a new TeamRegistration with ID: {}", teamRegistration.getId());
+
+        return responseDto;
     }
 
     @Override
     @Transactional
     public TeamRegistrationResponseDto update(long id, TeamRegistrationRequestDto requestDto) {
+        log.info("Updating a TeamRegistration with ID: {}", id);
+
         TeamRegistration teamRegistration = getEntityById(id);
 
         Team team = teamRegistration.getTeam();
         Event event = teamRegistration.getEvent();
 
-        long teamId = team.getId();
-        long eventId = event.getId();
+        long oldTeamId = team.getId();
+        long oldEventId = event.getId();
 
-        if (requestDto.teamId() != teamId) {
-            team = teamService.getEntityById(requestDto.teamId());
-        }
+        long newTeamId = requestDto.teamId();
+        long newEventId = requestDto.eventId();
 
-        if (requestDto.eventId() != eventId) {
-            event = eventService.getEntityById(requestDto.eventId());
-        }
-
-        if (
-                requestDto.eventId() != eventId ||
-                requestDto.teamId() != teamId
-        ) {
+        if (newTeamId != oldTeamId) {
+            team = teamService.getEntityById(newTeamId);
             throwExceptionIfTeamRegistrationExists(team, event);
+            teamRegistration.setTeam(team);
+
+            log.info(
+                    "Team with ID {} has been set for TeamRegistration with ID: {}",
+                    team.getId(),
+                    teamRegistration.getId()
+            );
         }
 
-        teamRegistration.setTeam(team);
-        teamRegistration.setEvent(event);
-        teamRegistration.setTeamResult(TeamResult.valueOf(requestDto.teamResult()));
+        if (newEventId != oldEventId) {
+            event = eventService.getEntityById(newEventId);
+            throwExceptionIfTeamRegistrationExists(team, event);
+            teamRegistration.setEvent(event);
+
+            log.info(
+                    "Event with ID {} has been set for TeamRegistration with ID: {}",
+                    event.getId(),
+                    teamRegistration.getId()
+            );
+        }
+
+        teamRegistration.setTeamResult(
+                TeamResult.valueOf(requestDto.teamResult())
+        );
 
         teamRegistration = teamRegistrationRepository.save(teamRegistration);
-        TeamRegistrationResponseDto teamResponseDto = teamRegistrationMapper.toDto(teamRegistration);
+        TeamRegistrationResponseDto responseDto = teamRegistrationMapper.toDto(teamRegistration);
 
-        return teamResponseDto;
+        log.info("Updated TeamRegistration with ID: {}", teamRegistration.getId());
+
+        return responseDto;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
+        log.info("Deleting TeamRegistration with ID: {}", id);
+
         TeamRegistration existingTeam = getEntityById(id);
         teamRegistrationRepository.delete(existingTeam);
+
+        log.info("Deleted TeamRegistration with ID: {}", id);
     }
 
     @Override
@@ -126,9 +161,11 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         teamRegistrationRepository.findByTeamAndEvent(team, event)
                 .ifPresent(foundTeamRegistration -> {
                     throw new EntityAlreadyExistsException(
-                            "Team with ID " + foundTeamRegistration.getId() +
-                                    " already registered for the event with ID: " +
-                                    event.getId() + "."
+                            String.format(
+                                    "Team with ID %d already registered for the event with ID: %d",
+                                    team.getId(),
+                                    event.getId()
+                            )
                     );
                 });
     }
