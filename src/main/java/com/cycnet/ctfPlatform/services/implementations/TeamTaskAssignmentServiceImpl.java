@@ -71,7 +71,7 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
         teamTaskAssignment.setTask(task);
 
         log.info(
-                "TeamRegistration with ID {} and Task with ID {}  are set for TeamTaskAssignment",
+                "TeamRegistration with ID {} and Task with ID {} are set for TeamTaskAssignment",
                 teamRegistration.getId(),
                 task.getId()
         );

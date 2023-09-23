@@ -75,7 +75,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         teamRegistration.setEvent(event);
 
         log.info(
-                "Team with ID {} and Event with ID {}  are set for TeamRegistration",
+                "Team with ID {} and Event with ID {} are set for TeamRegistration",
                 team.getId(),
                 event.getId()
         );
