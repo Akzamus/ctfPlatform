@@ -37,11 +37,11 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         log.info("Retrieving TeamRegistration, page number: {}, page size: {}", pageNumber, pageSize);
 
         Page<TeamRegistration> page = teamRegistrationRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<TeamRegistrationResponseDto> responseDto = teamRegistrationMapper.toDto(page);
+        PageResponseDto<TeamRegistrationResponseDto> pageResponseDto = teamRegistrationMapper.toDto(page);
 
         log.info("Finished retrieving TeamRegistration, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return responseDto;
+        return pageResponseDto;
     }
 
     @Override
@@ -49,18 +49,18 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         log.info("Retrieving TeamRegistration with ID: {}", id);
 
         TeamRegistration teamRegistration = getEntityById(id);
-        TeamRegistrationResponseDto teamRegistrationResponseDto = teamRegistrationMapper.toDto(teamRegistration);
+        TeamRegistrationResponseDto responseDto = teamRegistrationMapper.toDto(teamRegistration);
 
         log.info("Finished retrieving TeamRegistration by ID: {}", teamRegistration.getId());
 
-        return teamRegistrationResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public TeamRegistrationResponseDto create(TeamRegistrationRequestDto requestDto) {
         log.info(
-                "Creating a new TeamRegistration for Team with ID {} and Event with ID {}",
+                "Creating new TeamRegistration for Team with ID {} and Event with ID {}",
                 requestDto.teamId(),
                 requestDto.eventId()
         );
@@ -83,7 +83,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         teamRegistration = teamRegistrationRepository.save(teamRegistration);
         TeamRegistrationResponseDto responseDto = teamRegistrationMapper.toDto(teamRegistration);
 
-        log.info("Created a new TeamRegistration with ID: {}", teamRegistration.getId());
+        log.info("Created new TeamRegistration with ID: {}", teamRegistration.getId());
 
         return responseDto;
     }
@@ -91,7 +91,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
     @Override
     @Transactional
     public TeamRegistrationResponseDto update(long id, TeamRegistrationRequestDto requestDto) {
-        log.info("Updating a TeamRegistration with ID: {}", id);
+        log.info("Updating TeamRegistration with ID: {}", id);
 
         TeamRegistration teamRegistration = getEntityById(id);
 
@@ -145,10 +145,10 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
     public void delete(long id) {
         log.info("Deleting TeamRegistration with ID: {}", id);
 
-        TeamRegistration existingTeam = getEntityById(id);
-        teamRegistrationRepository.delete(existingTeam);
+        TeamRegistration teamRegistration = getEntityById(id);
+        teamRegistrationRepository.delete(teamRegistration);
 
-        log.info("Deleted TeamRegistration with ID: {}", id);
+        log.info("Deleted TeamRegistration with ID: {}", teamRegistration.getId());
     }
 
     @Override

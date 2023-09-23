@@ -33,7 +33,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public PageResponseDto<TaskResponseDto> getAll(int pageNumber, int pageSize) {
-        log.info("Retrieving tasks, page number: {}, page size : {}", pageNumber, pageSize);
+        log.info("Retrieving Tasks, page number: {}, page size : {}", pageNumber, pageSize);
 
         Page<Task> taskPage = taskRepository.findAll(PageRequest.of(pageNumber, pageSize));
         PageResponseDto<TaskResponseDto> taskPageResponseDto = taskMapper.toDto(taskPage);

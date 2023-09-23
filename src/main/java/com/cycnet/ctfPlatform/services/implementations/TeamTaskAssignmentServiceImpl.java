@@ -56,7 +56,7 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
     @Override
     public TeamTaskAssignmentResponseDto create(TeamTaskAssignmentRequestDto requestDto) {
         log.info(
-                "Creating a new TeamTaskAssignment for TeamRegistration with ID {} and Task with ID {}",
+                "Creating new TeamTaskAssignment for TeamRegistration with ID {} and Task with ID {}",
                 requestDto.teamRegistrationId(),
                 requestDto.taskId()
         );
@@ -79,14 +79,14 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
         teamTaskAssignment = teamTaskAssignmentRepository.save(teamTaskAssignment);
         TeamTaskAssignmentResponseDto responseDto = teamTaskAssignmentMapper.toDto(teamTaskAssignment);
 
-        log.info("Created a new TeamTaskAssignment with ID: {}", teamTaskAssignment.getId());
+        log.info("Created new TeamTaskAssignment with ID: {}", teamTaskAssignment.getId());
 
         return responseDto;
     }
 
     @Override
     public TeamTaskAssignmentResponseDto update(long id, TeamTaskAssignmentRequestDto requestDto) {
-        log.info("Updating a TeamTaskAssignment with ID: {}", id);
+        log.info("Updating TeamTaskAssignment with ID: {}", id);
 
         TeamTaskAssignment teamTaskAssignment = getEntityById(id);
 
@@ -139,10 +139,10 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
     public void delete(long id) {
         log.info("Deleting TeamTaskAssignment with ID: {}", id);
 
-        TeamTaskAssignment existingTeamTaskAssignment = getEntityById(id);
-        teamTaskAssignmentRepository.delete(existingTeamTaskAssignment);
+        TeamTaskAssignment teamTaskAssignment = getEntityById(id);
+        teamTaskAssignmentRepository.delete(teamTaskAssignment);
 
-        log.info("Deleted TeamTaskAssignment with ID: {}", id);
+        log.info("Deleted TeamTaskAssignment with ID: {}", teamTaskAssignment.getId());
     }
 
     @Override

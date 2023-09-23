@@ -18,6 +18,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -30,82 +32,87 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public PageResponseDto<UserResponseDto> getAll(int pageNumber, int pageSize) {
-        log.info("Retrieving users, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Retrieving Users, page number: {}, page size: {}", pageNumber, pageSize);
 
-        Page<User> userPage = userRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<UserResponseDto> userPageResponseDto = userMapper.toDto(userPage);
+        Page<User> page = userRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<UserResponseDto> pageResponseDto = userMapper.toDto(page);
 
-        log.info("Finished retrieving users, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Finished retrieving Users, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return userPageResponseDto;
+        return pageResponseDto;
     }
 
     @Override
     public UserResponseDto getById(long id) {
-        log.info("Retrieving user by ID: {}", id);
+        log.info("Retrieving User by ID: {}", id);
 
         User user = getEntityById(id);
-        UserResponseDto userResponseDto = userMapper.toDto(user);
+        UserResponseDto responseDto = userMapper.toDto(user);
 
-        log.info("Finished retrieving user by ID: {}", userResponseDto.id());
+        log.info("Finished retrieving User by ID: {}", user.getId());
 
-        return userResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
-    public UserResponseDto create(UserRequestDto userRequestDto) {
-        log.info("Creating a new user with email: {}", userRequestDto.email());
+    public UserResponseDto create(UserRequestDto requestDto) {
+        log.info("Creating new User with email: {}", requestDto.email());
 
-        throwExceptionIfUserExists(userRequestDto.email());
+        throwExceptionIfUserExists(requestDto.email());
 
-        User user = userMapper.toEntity(userRequestDto);
-        String password = userRequestDto.password();
-        user.setPassword(passwordEncoder.encode(password));
+        User user = userMapper.toEntity(requestDto);
+        user.setPassword(
+                passwordEncoder.encode(requestDto.password())
+        );
 
         user = userRepository.save(user);
-        UserResponseDto userResponseDto = userMapper.toDto(user);
+        UserResponseDto responseDto = userMapper.toDto(user);
 
-        log.info("Created a new user with email: {}", user.getEmail());
+        log.info("Created new User with ID: {}", user.getId());
 
-        return userResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public UserResponseDto update(long id, UserRequestDto requestDto) {
-        log.info("Updating user with ID: {}", id);
+        log.info("Updating User with ID: {}", id);
 
         User user = getEntityById(id);
+
+        String oldEmail = user.getEmail();
         String newEmail = requestDto.email();
 
-        if (!user.getEmail().equals(newEmail)) {
+        if (!Objects.equals(oldEmail, newEmail)) {
             throwExceptionIfUserExists(newEmail);
             user.setEmail(newEmail);
         }
 
-        user.setRole(Role.valueOf(requestDto.role()));
-
-        String password = requestDto.password();
-        user.setPassword(passwordEncoder.encode(password));
+        user.setRole(
+                Role.valueOf(requestDto.role())
+        );
+        user.setPassword(
+                passwordEncoder.encode(requestDto.password())
+        );
 
         user = userRepository.save(user);
-        UserResponseDto userResponseDto = userMapper.toDto(user);
+        UserResponseDto responseDto = userMapper.toDto(user);
 
-        log.info("Updated user with ID: {}", id);
+        log.info("Updated User with ID: {}", user.getId());
 
-        return userResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
-        log.info("Deleting user with ID: {}", id);
+        log.info("Deleting User with ID: {}", id);
 
-        User existingUser = getEntityById(id);
-        userRepository.delete(existingUser);
+        User user = getEntityById(id);
+        userRepository.delete(user);
 
-        log.info("Deleted user with ID: {}", id);
+        log.info("Deleted User with ID: {}", user.getId());
     }
 
     @Override

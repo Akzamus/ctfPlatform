@@ -38,11 +38,11 @@ public class TeamMemberServiceImpl implements TeamMemberService {
         log.info("Retrieving TeamMember, page number: {}, page size: {}", pageNumber, pageSize);
 
         Page<TeamMember> page = teamMemberRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<TeamMemberResponseDto> responseDto = teamMemberMapper.toDto(page);
+        PageResponseDto<TeamMemberResponseDto> pageResponseDto = teamMemberMapper.toDto(page);
 
         log.info("Finished retrieving TeamMember, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return responseDto;
+        return pageResponseDto;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
     @Transactional
     public TeamMemberResponseDto create(TeamMemberRequestDto requestDto) {
         log.info(
-                "Creating a new TeamMember for TeamRegistration with ID {} and Student with ID {}",
+                "Creating new TeamMember for TeamRegistration with ID {} and Student with ID {}",
                 requestDto.teamRegistrationId(),
                 requestDto.studentId()
         );
@@ -84,7 +84,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
         teamMember = teamMemberRepository.save(teamMember);
         TeamMemberResponseDto responseDto = teamMemberMapper.toDto(teamMember);
 
-        log.info("Created a new TeamMember with ID: {}", teamMember.getId());
+        log.info("Created new TeamMember with ID: {}", teamMember.getId());
 
         return responseDto;
     }
@@ -92,7 +92,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
     @Override
     @Transactional
     public TeamMemberResponseDto update(long id, TeamMemberRequestDto requestDto) {
-        log.info("Updating a TeamMember with ID: {}", id);
+        log.info("Updating TeamMember with ID: {}", id);
 
         TeamMember teamMember = getEntityById(id);
 
@@ -149,7 +149,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
         TeamMember teamMember = getEntityById(id);
         teamMemberRepository.delete(teamMember);
 
-        log.info("Deleted TeamMember with ID: {}", id);
+        log.info("Deleted TeamMember with ID: {}", teamMember.getId());
     }
 
     @Override

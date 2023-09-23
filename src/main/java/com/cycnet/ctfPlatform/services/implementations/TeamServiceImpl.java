@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,74 +29,75 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     public PageResponseDto<TeamResponseDto> getAll(int pageNumber, int pageSize) {
-        log.info("Retrieving teams, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Retrieving Teams, page number: {}, page size: {}", pageNumber, pageSize);
 
-        Page<Team> teamPage = teamRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<TeamResponseDto> teamPageResponseDto = teamMapper.toDto(teamPage);
+        Page<Team> page = teamRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<TeamResponseDto> pageResponseDto = teamMapper.toDto(page);
 
-        log.info("Finished retrieving teams, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Finished retrieving Teams, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return teamPageResponseDto;
+        return pageResponseDto;
     }
 
     @Override
     public TeamResponseDto getById(long id) {
-        log.info("Retrieving team by ID: {}", id);
+        log.info("Retrieving Team by ID: {}", id);
 
         Team team = getEntityById(id);
-        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
+        TeamResponseDto responseDto = teamMapper.toDto(team);
 
-        log.info("Finished retrieving team by ID: {}", teamResponseDto.id());
+        log.info("Finished retrieving Team by ID: {}", team.getId());
 
-        return teamResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public TeamResponseDto create(TeamRequestDto teamRequestDto) {
-        log.info("Creating a new team with name: {}", teamRequestDto.name());
+        log.info("Creating new Team with name: {}", teamRequestDto.name());
 
         throwExceptionIfTeamExists(teamRequestDto.name());
 
         Team team = teamMapper.toEntity(teamRequestDto);
         team = teamRepository.save(team);
-        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
+        TeamResponseDto responseDto = teamMapper.toDto(team);
 
-        log.info("Created a new team with name: {}", team.getName());
+        log.info("Created new Team with ID: {}", team.getId());
 
-        return teamResponseDto;
+        return responseDto;
     }
 
     @Override
     public TeamResponseDto update(long id, TeamRequestDto requestDto) {
-        log.info("Updating team with ID: {}", id);
+        log.info("Updating Team with ID: {}", id);
 
         Team team = getEntityById(id);
 
+        String oldName = team.getName();
         String newName = requestDto.name();
 
-        if (!team.getName().equals(newName)) {
+        if (!Objects.equals(oldName, newName)) {
             throwExceptionIfTeamExists(newName);
             team.setName(newName);
-            team = teamRepository.save(team);
         }
 
-        TeamResponseDto teamResponseDto = teamMapper.toDto(team);
+        team = teamRepository.save(team);
+        TeamResponseDto responseDto = teamMapper.toDto(team);
 
-        log.info("Updated team with ID: {}", id);
+        log.info("Updated Team with ID: {}", team.getId());
 
-        return teamResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
-        log.info("Deleting team with ID: {}", id);
+        log.info("Deleting Team with ID: {}", id);
 
-        Team existingTeam = getEntityById(id);
-        teamRepository.delete(existingTeam);
+        Team team = getEntityById(id);
+        teamRepository.delete(team);
 
-        log.info("Deleted team with ID: {}", id);
+        log.info("Deleted Team with ID: {}", team.getId());
     }
 
     @Override
