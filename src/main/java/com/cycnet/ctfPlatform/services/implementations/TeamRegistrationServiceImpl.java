@@ -104,7 +104,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
         long newTeamId = requestDto.teamId();
         long newEventId = requestDto.eventId();
 
-        if (newTeamId != oldTeamId) {
+        if (oldTeamId != newTeamId) {
             team = teamService.getEntityById(newTeamId);
             throwExceptionIfTeamRegistrationExists(team, event);
             teamRegistration.setTeam(team);
@@ -116,7 +116,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
             );
         }
 
-        if (newEventId != oldEventId) {
+        if (oldEventId != newEventId) {
             event = eventService.getEntityById(newEventId);
             throwExceptionIfTeamRegistrationExists(team, event);
             teamRegistration.setEvent(event);
@@ -154,7 +154,7 @@ public class TeamRegistrationServiceImpl implements TeamRegistrationService {
     @Override
     public TeamRegistration getEntityById(long id) {
         return teamRegistrationRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Registration with id " + id  +" does not exists"));
+                .orElseThrow(() -> new EntityNotFoundException("Registration with id " + id  + " does not exists"));
     }
 
     private void throwExceptionIfTeamRegistrationExists(Team team, Event event) {

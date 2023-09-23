@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
         userRepository.findByEmail(email)
                 .ifPresent(foundUser -> {
                     throw new EntityAlreadyExistsException(
-                            "User with the email " + foundUser.getEmail() + " already exists."
+                            "User with the email " + foundUser.getEmail() + " already exists"
                     );
                 });
     }

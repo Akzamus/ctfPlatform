@@ -79,9 +79,9 @@ public class TeamServiceImpl implements TeamService {
         if (!Objects.equals(oldName, newName)) {
             throwExceptionIfTeamExists(newName);
             team.setName(newName);
+            team = teamRepository.save(team);
         }
 
-        team = teamRepository.save(team);
         TeamResponseDto responseDto = teamMapper.toDto(team);
 
         log.info("Updated Team with ID: {}", team.getId());
@@ -110,7 +110,7 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.findByName(name)
                 .ifPresent(foundTeam -> {
                     throw new EntityAlreadyExistsException(
-                            "Team with the name " + foundTeam.getName() + " already exists."
+                            "Team with the name " + foundTeam.getName() + " already exists"
                     );
                 });
     }

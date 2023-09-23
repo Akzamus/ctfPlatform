@@ -99,7 +99,7 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
         long newTeamRegistrationId = requestDto.teamRegistrationId();
         long newTaskId = requestDto.taskId();
 
-        if (newTeamRegistrationId != oldTeamRegistrationId) {
+        if (oldTeamRegistrationId != newTeamRegistrationId) {
             teamRegistration = teamRegistrationService.getEntityById(newTeamRegistrationId);
             throwExceptionIfTeamTaskAssignmentExists(teamRegistration, task);
             teamTaskAssignment.setTeamRegistration(teamRegistration);
@@ -111,7 +111,7 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
             );
         }
 
-        if (newTaskId != oldTaskId) {
+        if (oldTaskId != newTaskId) {
             task = taskService.getEntityById(newTaskId);
             throwExceptionIfTeamTaskAssignmentExists(teamRegistration, task);
             teamTaskAssignment.setTask(task);
@@ -158,7 +158,7 @@ public class TeamTaskAssignmentServiceImpl implements TeamTaskAssignmentService 
                 .ifPresent(foundTeamTaskAssignment-> {
                     throw new EntityAlreadyExistsException(
                             String.format(
-                                    "Team with registration ID %d has already been given a task with ID %d.",
+                                    "Team with registration ID %d has already been given a task with ID %d",
                                     teamRegistration.getId(),
                                     task.getId()
                             )

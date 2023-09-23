@@ -105,7 +105,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
         long newStudentId = requestDto.studentId();
         long newTeamRegistrationId = requestDto.teamRegistrationId();
 
-        if (newTeamRegistrationId != oldTeamRegistrationId) {
+        if (oldTeamRegistrationId != newTeamRegistrationId) {
             teamRegistration = teamRegistrationService.getEntityById(newTeamRegistrationId);
             throwExceptionIfTeamMemberExists(student, teamRegistration);
             teamMember.setTeamRegistration(teamRegistration);
@@ -117,7 +117,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
             );
         }
 
-        if (newStudentId != oldStudentId) {
+        if (oldStudentId != newStudentId) {
             student = studentService.getEntityById(newStudentId);
             throwExceptionIfTeamMemberExists(student, teamRegistration);
             teamMember.setStudent(student);
@@ -155,7 +155,7 @@ public class TeamMemberServiceImpl implements TeamMemberService {
     @Override
     public TeamMember getEntityById(long id) {
         return teamMemberRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Team member with ID " + id + " does not exists."));
+                .orElseThrow(() -> new EntityNotFoundException("Team member with ID " + id + " does not exists"));
     }
 
     private void throwExceptionIfTeamMemberExists(Student student, TeamRegistration teamRegistration) {
