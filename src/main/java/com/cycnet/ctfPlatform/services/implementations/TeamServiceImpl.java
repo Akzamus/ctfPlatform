@@ -53,12 +53,12 @@ public class TeamServiceImpl implements TeamService {
 
     @Override
     @Transactional
-    public TeamResponseDto create(TeamRequestDto teamRequestDto) {
-        log.info("Creating new Team with name: {}", teamRequestDto.name());
+    public TeamResponseDto create(TeamRequestDto requestDto) {
+        log.info("Creating new Team with name: {}", requestDto.name());
 
-        throwExceptionIfTeamExists(teamRequestDto.name());
+        throwExceptionIfTeamExists(requestDto.name());
 
-        Team team = teamMapper.toEntity(teamRequestDto);
+        Team team = teamMapper.toEntity(requestDto);
         team = teamRepository.save(team);
         TeamResponseDto responseDto = teamMapper.toDto(team);
 

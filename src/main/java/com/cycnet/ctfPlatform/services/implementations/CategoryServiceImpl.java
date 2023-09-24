@@ -16,6 +16,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -27,87 +29,89 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public PageResponseDto<CategoryResponseDto> getAll(int pageNumber, int pageSize) {
-        log.info("Retrieving categories, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Retrieving Categories, page number: {}, page size: {}", pageNumber, pageSize);
 
-        Page<Category> categoryPage = categoryRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<CategoryResponseDto> categoryPageResponseDto = categoryMapper.toDto(categoryPage);
+        Page<Category> page = categoryRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<CategoryResponseDto> pageResponseDto = categoryMapper.toDto(page);
 
-        log.info("Finished retrieving categories, page number: {}, page size: {}", pageNumber, pageSize);
+        log.info("Finished retrieving Categories, page number: {}, page size: {}", pageNumber, pageSize);
 
-        return categoryPageResponseDto;
+        return pageResponseDto;
     }
 
     @Override
     public CategoryResponseDto getById(long id) {
-        log.info("Retrieving category by ID: {}", id);
+        log.info("Retrieving Category by ID: {}", id);
 
         Category category = getEntityById(id);
-        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
+        CategoryResponseDto responseDto = categoryMapper.toDto(category);
 
-        log.info("Finished retrieving category by ID: {}", categoryResponseDto.id());
+        log.info("Finished retrieving Category by ID: {}", category.getId());
 
-        return categoryResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
-    public CategoryResponseDto create(CategoryRequestDto categoryRequestDto) {
-        log.info("Creating a new category with name: {}", categoryRequestDto.name());
+    public CategoryResponseDto create(CategoryRequestDto requestDto) {
+        log.info("Creating new Category with name: {}", requestDto.name());
 
-        throwExceptionIfCategoryExists(categoryRequestDto.name());
+        throwExceptionIfCategoryExists(requestDto.name());
 
-        Category category = categoryMapper.toEntity(categoryRequestDto);
+        Category category = categoryMapper.toEntity(requestDto);
         category = categoryRepository.save(category);
-        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
+        CategoryResponseDto responseDto = categoryMapper.toDto(category);
 
-        log.info("Created a new category with name: {}", category.getName());
+        log.info("Created new Category with ID: {}", category.getId());
 
-        return categoryResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public CategoryResponseDto update(long id, CategoryRequestDto categoryRequestDto) {
-        log.info("Updating category with ID: {}", id);
+        log.info("Updating Category with ID: {}", id);
 
         Category category = getEntityById(id);
+
+        String oldName = category.getName();
         String newName = categoryRequestDto.name();
 
-        if (!category.getName().equals(newName)) {
+        if (!Objects.equals(oldName, newName)) {
             throwExceptionIfCategoryExists(newName);
             category.setName(newName);
             category = categoryRepository.save(category);
         }
 
-        CategoryResponseDto categoryResponseDto = categoryMapper.toDto(category);
+        CategoryResponseDto responseDto = categoryMapper.toDto(category);
 
-        log.info("Updated category with ID: {}", category.getId());
+        log.info("Updated Category with ID: {}", category.getId());
 
-        return categoryResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
-        log.info("Deleting category with ID: {}", id);
+        log.info("Deleting Category with ID: {}", id);
 
-        Category existingCategory = getEntityById(id);
-        categoryRepository.delete(existingCategory);
+        Category category = getEntityById(id);
+        categoryRepository.delete(category);
 
-        log.info("Deleted category with ID: {}", id);
+        log.info("Deleted Category with ID: {}", category.getId());
     }
 
     @Override
     public Category getEntityById(long id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist."));
+                .orElseThrow(() -> new EntityNotFoundException("Category with ID " + id + " does not exist"));
     }
 
     private void throwExceptionIfCategoryExists(String categoryName) {
         categoryRepository.findByName(categoryName)
                 .ifPresent(foundCategory -> {
                     throw new EntityAlreadyExistsException(
-                            "Category with the name " + foundCategory.getName() + " already exists."
+                            "Category with the name " + foundCategory.getName() + " already exists"
                     );
                 });
     }
