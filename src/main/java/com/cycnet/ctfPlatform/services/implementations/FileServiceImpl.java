@@ -12,6 +12,7 @@ import com.cycnet.ctfPlatform.repositories.FileRepository;
 import com.cycnet.ctfPlatform.services.FileService;
 import com.cycnet.ctfPlatform.services.StorageService;
 import com.cycnet.ctfPlatform.services.TaskService;
+import com.cycnet.ctfPlatform.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Objects;
 
 @Slf4j
 @Service
@@ -30,126 +33,145 @@ public class FileServiceImpl implements FileService {
     private final TaskService taskService;
     private final StorageService storageService;
     private final FileMapper fileMapper;
-    private final String TASK_FOLDER = "tasks";
+
+    private final String TASK_FILE_FORMAT = "tasks/%d/%s";
 
     @Override
     public PageResponseDto<FileResponseDto> getAll(int pageNumber, int pageSize) {
-        log.info("Retrieving files, page number: {}, page size : {}", pageNumber, pageSize);
+        log.info("Retrieving Files, page number: {}, page size : {}", pageNumber, pageSize);
 
-        Page<File> filePage = fileRepository.findAll(PageRequest.of(pageNumber, pageSize));
-        PageResponseDto<FileResponseDto> studentPageResponseDto = fileMapper.toDto(filePage);
+        Page<File> page = fileRepository.findAll(PageRequest.of(pageNumber, pageSize));
+        PageResponseDto<FileResponseDto> pageResponseDto = fileMapper.toDto(page);
 
-        log.info("Finished retrieving files, page number: {}, page size : {}", pageNumber, pageSize);
+        log.info("Finished retrieving Files, page number: {}, page size : {}", pageNumber, pageSize);
 
-        return studentPageResponseDto;
+        return pageResponseDto;
     }
 
     @Override
     public FileResponseDto getById(long id) {
-        log.info("Retrieving file by ID: {}", id);
+        log.info("Retrieving File by ID: {}", id);
 
         File file = getEntityById(id);
-        FileResponseDto fileResponseDto = fileMapper.toDto(file);
+        FileResponseDto responseDto = fileMapper.toDto(file);
 
-        log.info("Finished retrieving file by ID: {}", file.getId());
+        log.info("Finished retrieving File by ID: {}", file.getId());
 
-        return fileResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public FileResponseDto create(FileRequestDto requestDto) {
-        log.info("Creating a new file for task with ID: {}", requestDto.taskId());
+        log.info("Creating new File for Task with ID: {}", requestDto.taskId());
 
         Task task = taskService.getEntityById(requestDto.taskId());
 
         MultipartFile multipartFile = requestDto.file();
-        String folderPath = TASK_FOLDER + "/" + task.getId();
-        String filePath = folderPath + "/" + multipartFile.getOriginalFilename().replaceAll(" ", "");
 
-        throwExceptionIfFileWithTaskAndPathExists(task, filePath);
+        String filePath = String.format(
+                TASK_FILE_FORMAT,
+                task.getId(),
+                FileUtils.generateFileName(multipartFile)
+        );
 
-        filePath = storageService.uploadFile(folderPath, multipartFile);
+        throwExceptionIfFileExists(filePath);
+
+        filePath = storageService.uploadFile(
+                filePath,
+                FileUtils.getInputStreamOrElseThrow(multipartFile)
+        );
 
         File file = fileMapper.toEntity(requestDto);
         file.setPath(filePath);
         file.setTask(task);
 
         file = fileRepository.save(file);
-        FileResponseDto fileResponseDto = fileMapper.toDto(file);
+        FileResponseDto responseDto = fileMapper.toDto(file);
 
-        log.info("Created a new file with ID: {}", file.getId());
+        log.info("Created new File with ID: {}", file.getId());
 
-        return fileResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public FileResponseDto update(long id, FileRequestDto requestDto) {
-        log.info("Updating a new file with id: {}", id);
+        log.info("Updating new File with id: {}", id);
 
         File file = getEntityById(id);
 
+        Task task = taskService.getEntityById(requestDto.taskId());
         MultipartFile multipartFile = requestDto.file();
-        String folderPath = TASK_FOLDER + "/" + requestDto.taskId();
-        String filePath = folderPath + "/" + multipartFile.getOriginalFilename().replaceAll(" ", "");
 
-        long taskId = requestDto.taskId();
+        long oldTaskId = task.getId();
+        String oldFilePath = file.getPath();
 
-        if (file.getTask().getId() != taskId) {
-            Task task = taskService.getEntityById(taskId);
+        long newTaskId = requestDto.taskId();
+        String newFilePath;
+
+        if (oldTaskId != newTaskId) {
+            task = taskService.getEntityById(newTaskId);
             file.setTask(task);
 
-            log.info("Task with ID {} has been set for file with ID: {}", task.getId(), file.getId());
+            log.info("Task with ID {} is set for File with ID: {}", task.getId(), file.getId());
         }
 
-        if (!file.getPath().equals(filePath)) {
-            throwExceptionIfFileWithTaskAndPathExists(file.getTask(), filePath);
+        newFilePath = String.format(
+                TASK_FILE_FORMAT,
+                task.getId(),
+                FileUtils.generateFileName(multipartFile)
+        );
 
-            filePath = storageService.uploadFile(folderPath, multipartFile);
-            storageService.deleteFile(file.getPath());
-        } else {
-            filePath = storageService.uploadFile(folderPath, multipartFile);
-            log.info("File on the path '{}' is overwritten.",  filePath);
+        if (!Objects.equals(oldFilePath, newFilePath)) {
+            throwExceptionIfFileExists(newFilePath);
         }
 
-        file.setPath(filePath);
+        newFilePath = storageService.uploadFile(
+                newFilePath,
+                FileUtils.getInputStreamOrElseThrow(multipartFile)
+        );
+
+        if (!Objects.equals(oldFilePath, newFilePath)) {
+            storageService.deleteFile(oldFilePath);
+        }
+
+        file.setPath(newFilePath);
 
         file = fileRepository.save(file);
-        FileResponseDto fileResponseDto = fileMapper.toDto(file);
+        FileResponseDto responseDto = fileMapper.toDto(file);
 
-        log.info("Updated file with ID: {}", file.getId());
+        log.info("Updated File with ID: {}", file.getId());
 
-        return fileResponseDto;
+        return responseDto;
     }
 
     @Override
     @Transactional
     public void delete(long id) {
-        log.info("Deleting file with ID: {}", id);
+        log.info("Deleting File with ID: {}", id);
 
         File file = getEntityById(id);
         fileRepository.delete(file);
 
-        log.info("Deleted file with ID: {}", file.getId());
-
         storageService.deleteFile(file.getPath());
+
+        log.info("Deleted File with ID: {}", file.getId());
     }
 
     @Override
     public File getEntityById(long id) {
         return fileRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
-                        "File with ID " + id + " does not exist."
+                        "File with ID " + id + " does not exist"
                 ));
     }
 
-    private void throwExceptionIfFileWithTaskAndPathExists(Task task, String path) {
-        fileRepository.findByTaskAndPath(task, path)
+    private void throwExceptionIfFileExists(String path) {
+        fileRepository.findByPath(path)
                 .ifPresent(foundFile -> {
                     throw new EntityAlreadyExistsException(
-                            "A file with the path '" + foundFile.getPath() + "' already exists for task with ID: " +
-                                    task.getId() + "."
+                            "File with the path '" + foundFile.getPath() + "' already exists"
                     );
                 });
     }

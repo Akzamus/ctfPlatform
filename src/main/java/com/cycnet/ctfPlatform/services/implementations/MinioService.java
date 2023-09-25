@@ -9,9 +9,7 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
@@ -21,18 +19,6 @@ public class MinioService implements StorageService {
 
     private final MinioClient minioClient;
     private final MinioProperties minioProperties;
-
-    @Override
-    public String uploadFile(String folderPath, MultipartFile multipartFile) {
-        try {
-            return uploadFile(
-                    folderPath + "/" + multipartFile.getOriginalFilename().replaceAll(" ", ""),
-                    multipartFile.getInputStream()
-            );
-        } catch (IOException e) {
-            throw new InternalServerErrorException(e.getMessage(), e);
-        }
-    }
 
     @Override
     public String uploadFile(String filePath, InputStream inputStream) {
