@@ -40,7 +40,9 @@ public class ApiExceptionResponseFactory {
                 .build();
     }
 
-    public ApiValidationExceptionResponseDto createApiValidationExceptionResponseDto(Set<ConstraintViolation<?>> violations) {
+    public ApiValidationExceptionResponseDto createApiValidationExceptionResponseDto(
+            Set<ConstraintViolation<?>> violations
+    ) {
         Map<String, String> errorFields = buildErrorFields(violations);
         return ApiValidationExceptionResponseDto.builder()
                 .errorCode(HttpStatus.BAD_REQUEST.value())

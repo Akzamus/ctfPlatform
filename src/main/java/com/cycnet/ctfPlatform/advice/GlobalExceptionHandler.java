@@ -3,9 +3,11 @@ package com.cycnet.ctfPlatform.advice;
 import com.cycnet.ctfPlatform.dto.apiException.ApiExceptionResponseDto;
 import com.cycnet.ctfPlatform.dto.apiException.ApiValidationExceptionResponseDto;
 import com.cycnet.ctfPlatform.exceptions.ApiExceptionResponseFactory;
+import com.cycnet.ctfPlatform.exceptions.server.InternalServerErrorException;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -22,6 +24,7 @@ import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
@@ -34,9 +37,13 @@ public class GlobalExceptionHandler {
     public ApiValidationExceptionResponseDto handleMethodArgumentNotValidException(
             MethodArgumentNotValidException exception
     ) {
-        return apiExceptionResponseFactory.createApiValidationExceptionResponseDto(
-                exception.getBindingResult()
-        );
+
+        ApiValidationExceptionResponseDto responseDto = apiExceptionResponseFactory
+                .createApiValidationExceptionResponseDto(exception.getBindingResult());
+
+        log.warn("Client sent the wrong request body: {}", responseDto.getErrorFields());
+
+        return responseDto;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -44,9 +51,12 @@ public class GlobalExceptionHandler {
     public ApiValidationExceptionResponseDto handleConstraintViolationException(
             ConstraintViolationException exception
     ) {
-        return apiExceptionResponseFactory.createApiValidationExceptionResponseDto(
-                exception.getConstraintViolations()
-        );
+        ApiValidationExceptionResponseDto responseDto = apiExceptionResponseFactory
+                .createApiValidationExceptionResponseDto(exception.getConstraintViolations());
+
+        log.warn("Client sent the wrong variables in the path: {}", responseDto.getErrorFields());
+
+        return responseDto;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -54,6 +64,8 @@ public class GlobalExceptionHandler {
     public ApiExceptionResponseDto handleMissingRequestHeaderException(
             MissingRequestHeaderException exception
     ) {
+        log.warn("Client did not send the required header: {}", exception.getHeaderName());
+
         return apiExceptionResponseFactory.createApiExceptionResponseDto(
                 HttpStatus.BAD_REQUEST,
                 "Required header '" + exception.getHeaderName() + "' is missing"
@@ -65,6 +77,8 @@ public class GlobalExceptionHandler {
     public ApiExceptionResponseDto handleMethodArgumentTypeMismatchException(
             MethodArgumentTypeMismatchException exception
     ) {
+        log.warn("Client sent the wrong parameter type in path: {}", exception.getName());
+
         return apiExceptionResponseFactory.createApiExceptionResponseDto(
                 HttpStatus.BAD_REQUEST,
                 "Failed to convert value of parameter '" + exception.getName() + "' to the required type."
@@ -76,6 +90,8 @@ public class GlobalExceptionHandler {
     public ApiExceptionResponseDto handleHttpRequestMethodNotSupportedException(
             HttpRequestMethodNotSupportedException exception
     ) {
+        log.warn("Client sent a request with an unavailable method: {}", exception.getMethod());
+
         return apiExceptionResponseFactory.createApiExceptionResponseDto(
                 HttpStatus.BAD_REQUEST,
                 exception.getMessage()
@@ -91,6 +107,13 @@ public class GlobalExceptionHandler {
                 httpStatus,
                 exception.getReason()
         );
+
+        log.warn(
+                "Client received an exception with the status {} and the message: {}",
+                httpStatus,
+                response.getErrorMessage()
+        );
+
         return new ResponseEntity<>(response, httpStatus);
     }
 
@@ -100,12 +123,33 @@ public class GlobalExceptionHandler {
             HttpMessageNotReadableException exception
     ) {
         Throwable mostSpecificCause = exception.getMostSpecificCause();
+        String errorMessage = errorMessages.getOrDefault(
+                mostSpecificCause.getClass(),
+                exception.getMessage()
+        );
+
+        log.warn(
+                "Client sent an invalid argument value in the body and received a response: {}",
+                errorMessage
+        );
+
         return apiExceptionResponseFactory.createApiExceptionResponseDto(
                 HttpStatus.BAD_REQUEST,
-                errorMessages.getOrDefault(
-                        mostSpecificCause.getClass(),
-                        exception.getMessage()
-                )
+                errorMessage
+        );
+    }
+
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ExceptionHandler(InternalServerErrorException.class)
+    public ApiExceptionResponseDto handleInternalServerErrorException(
+            InternalServerErrorException exception
+    ) {
+        String errorMessage = "Internal server error";
+        log.warn(errorMessage, exception.getCause());
+
+        return apiExceptionResponseFactory.createApiExceptionResponseDto(
+                HttpStatus.INTERNAL_SERVER_ERROR,
+                errorMessage
         );
     }
 
@@ -113,4 +157,5 @@ public class GlobalExceptionHandler {
     private void initializeExceptionMap() {
         errorMessages.put(DateTimeParseException.class, "Invalid date format, use ISO-8601");
     }
+
 }
