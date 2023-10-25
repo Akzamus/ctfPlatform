@@ -60,5 +60,5 @@ tasks.named('test') {
 }
 
 bootBuildImage {
-	imageName = 'ctf-platform'
+	imageName = 'akzamus/ctf-platform:dev'
 }

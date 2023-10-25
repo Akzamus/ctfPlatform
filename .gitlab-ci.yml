@@ -1,0 +1,35 @@
+image: bellsoft/liberica-openjdk-debian:17
+
+services:
+  - name: docker:dind
+    command: ["--tls=false"]
+
+variables:
+  APP_IMAGE_NAME: akzamus/ctf-platform
+  APP_IMAGE_TAG: dev
+  DOCKER_HOST: "tcp://docker:2375"
+  DOCKER_TLS_CERTDIR: ""
+  DOCKER_DRIVER: overlay2
+
+stages:
+  - test
+  - build
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - .gradle/
+    - build/
+
+run_tests:
+  stage: test
+  script:
+    - ./gradlew clean test
+
+build_docker_image:
+  stage: build
+  before_script:
+    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+  script:
+    - ./gradlew clean bootBuildImage -PimageName=$APP_IMAGE_NAME -PimageTag=$APP_IMAGE_TAG
+    - docker push $APP_IMAGE_NAME:$APP_IMAGE_TAG
