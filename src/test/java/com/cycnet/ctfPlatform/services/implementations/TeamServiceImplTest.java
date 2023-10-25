@@ -38,6 +38,9 @@ class TeamServiceImplTest {
 
     private TeamService underTest;
 
+    private final String TEAM_WITH_ID_NOT_FOUND_MESSAGE_FORMAT = "Team with ID %d does not exist";
+    private final String TEAM_WITH_NAME_ALREADY_EXISTS_MESSAGE_FORMAT = "Team with the name '%s' already exists";
+
     @BeforeEach
     void setUp() {
         underTest = new TeamServiceImpl(teamRepository, teamMapper);
@@ -109,7 +112,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> underTest.getById(id),
-                "Team with ID " + id + " does not exist"
+                String.format(TEAM_WITH_ID_NOT_FOUND_MESSAGE_FORMAT, id)
         );
 
         verify(teamRepository).findById(id);
@@ -131,7 +134,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityAlreadyExistsException.class,
                 () -> underTest.create(requestDto),
-                "Team with the name " + teamName + " already exists"
+                String.format(TEAM_WITH_NAME_ALREADY_EXISTS_MESSAGE_FORMAT, teamName)
         );
 
         verify(teamRepository).findByName(teamName);
@@ -209,7 +212,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityAlreadyExistsException.class,
                 () -> underTest.update(id, requestDto),
-                "Team with the name " + newTeamName + " already exists"
+                String.format(TEAM_WITH_NAME_ALREADY_EXISTS_MESSAGE_FORMAT, newTeamName)
         );
 
         verify(teamRepository).findById(id);
@@ -259,7 +262,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> underTest.update(id, requestDto),
-                "Team with ID " + id + " does not exist"
+                String.format(TEAM_WITH_ID_NOT_FOUND_MESSAGE_FORMAT, id)
         );
 
         verify(teamRepository).findById(id);
@@ -295,7 +298,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> underTest.delete(id),
-                "Team with ID " + id + " does not exist"
+                String.format(TEAM_WITH_ID_NOT_FOUND_MESSAGE_FORMAT, id)
         );
 
         verify(teamRepository).findById(id);
@@ -332,7 +335,7 @@ class TeamServiceImplTest {
         assertThrows(
                 EntityNotFoundException.class,
                 () -> underTest.getEntityById(id),
-                "Team with ID " + id + " does not exist"
+                String.format(TEAM_WITH_ID_NOT_FOUND_MESSAGE_FORMAT, id)
         );
 
         verify(teamRepository).findById(id);

@@ -110,7 +110,7 @@ public class TeamServiceImpl implements TeamService {
         teamRepository.findByName(name)
                 .ifPresent(foundTeam -> {
                     throw new EntityAlreadyExistsException(
-                            "Team with the name " + foundTeam.getName() + " already exists"
+                            "Team with the name '" + foundTeam.getName() + "' already exists"
                     );
                 });
     }

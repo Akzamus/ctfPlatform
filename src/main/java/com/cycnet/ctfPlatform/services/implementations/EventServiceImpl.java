@@ -114,7 +114,7 @@ public class EventServiceImpl implements EventService {
         eventRepository.findByName(name)
                 .ifPresent(foundEvent -> {
                     throw new EntityAlreadyExistsException(
-                            "Event with the name " + foundEvent.getName() + " already exists"
+                            "Event with the name '" + foundEvent.getName() + "' already exists"
                     );
                 });
     }
