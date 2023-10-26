@@ -1,7 +1,5 @@
-image: bellsoft/liberica-openjdk-debian:17
-
 services:
-  - name: docker:dind
+  - name: docker:20.10-dind
     command: ["--tls=false"]
 
 variables:
@@ -23,13 +21,19 @@ cache:
 
 run_tests:
   stage: test
+  image: bellsoft/liberica-openjdk-debian:17
+  before_script:
+    - chmod +x ./gradlew
   script:
     - ./gradlew clean test
 
 build_docker_image:
   stage: build
+  image: docker:20.10.16
   before_script:
-    - docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD
+    - apk update && apk add openjdk17
+    - chmod +x ./gradlew
+    - docker login -u $REGISTRY_USER -p $REGISTRY_TOKEN
   script:
     - ./gradlew clean bootBuildImage -PimageName=$APP_IMAGE_NAME -PimageTag=$APP_IMAGE_TAG
     - docker push $APP_IMAGE_NAME:$APP_IMAGE_TAG
